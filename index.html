@@ -330,7 +330,7 @@
                         }
                         if (ship.model.position.x >= finishLineX) {
                             ship.finished = true; ship.time = elapsedTime;
-                            document.getElementById(`status${ship.id}`).innerText = `GOAL (${elapsedTime.toFixed(2)}s)`;
+                            document.getElementById(`status${ship.id}`).innerHTML = `GOAL (${elapsedTime.toFixed(2)}s)`+ "<br>";
                             if (!winningShipId) { winningShipId = ship.id; isTapeCut = true; document.getElementById('centralWin').style.display = 'block'; spawnConfetti(); }
                         }
                     }
