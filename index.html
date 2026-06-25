@@ -101,7 +101,7 @@
         ⏱️ TIME: <span id="timeTxt">0.00</span>s<br>
         <span id="infoName1">RED</span>: <span id="status1">READY</span><br>
         <span id="infoName2">GREEN</span>: <span id="status2">READY</span><br>
-        <span id="infoName3">BLUE</span>: <span id="status3">READY</span>
+        <span id="infoName3">BLUE</span>: <span id="status3">READY</span><br>
         <span id="infoName4">YELLOW</span>: <span id="status4">READY</span><br>
         <button id="restartBtn">RETRY 🔄</button>
     </div>
@@ -330,7 +330,7 @@
                         }
                         if (ship.model.position.x >= finishLineX) {
                             ship.finished = true; ship.time = elapsedTime;
-                            document.getElementById(`status${ship.id}`).innerHTML = `GOAL (${elapsedTime.toFixed(2)}s)`+ "<br>";
+                            document.getElementById(`status${ship.id}`).innerText = `GOAL (${elapsedTime.toFixed(2)}s)`;
                             if (!winningShipId) { winningShipId = ship.id; isTapeCut = true; document.getElementById('centralWin').style.display = 'block'; spawnConfetti(); }
                         }
                     }
