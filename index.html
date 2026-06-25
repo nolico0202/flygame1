@@ -342,7 +342,7 @@
             winnerScene = new THREE.Scene();
             
             winnerCamera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 1000);
-            winnerCamera.position.set(0, 0, 2.5); // 💡 3.2 から 2.5 にしてカメラを近づける
+            winnerCamera.position.set(0, 0, 3.2);
 
             winnerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             winnerRenderer.setSize(container.clientWidth, container.clientHeight);
@@ -362,7 +362,7 @@
             if (winnerShip.model) {
                 winnerModel = winnerShip.model.clone();
                 winnerModel.position.set(0, -0.3, 0); 
-                winnerModel.scale.set(3.5, 3.5, 3.5); // 💡 2.4 から 3.5 に大きく
+                winnerModel.scale.set(2.4, 2.4, 2.4); 
                 winnerModel.rotation.y = Math.PI; // 💡機体を180度回転させて正面を向ける
 
                 winnerModel.traverse((child) => {
