@@ -425,12 +425,14 @@ function animate() {
     camera.position.y = 6;
     camera.lookAt(leaderX + 25, 0, 0);
 
-    if (allFin) {
-        gameStarted = false;
-        let winnerShip = ships.reduce((min, ship) => ship.time < min.time ? ship : min, ships[0]);
-        showWinnerScreen(winnerShip);
-        document.getElementById('restartBtn').style.display = 'block';
-    }
+    // 💡 allFin の代わりに、すべての飛行機が完走（finished）したかチェックします
+let allFin = ships.every(ship => ship.finished); 
+if (allFin && gameStarted) { // 💡 レース中かつ全員ゴールしたら画面を出します
+    gameStarted = false;
+    let winnerShip = ships.reduce((min, ship) => ship.time < min.time ? ship : min, ships[0]);
+    showWinnerScreen(winnerShip);
+    document.getElementById('restartBtn').style.display = 'block';
+}
 
     // 💡 優勝機体をフワフワ浮かせながら綺麗に回転させる処理
     if (winnerModel) {
