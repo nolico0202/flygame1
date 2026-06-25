@@ -57,10 +57,27 @@
 }
         #winnerCloseUp { width: 50%; height: 50%; margin-bottom: 20px; position: relative; }
         #winnerMessage {
-            font-size: 60px; margin-bottom: 10px; background: linear-gradient(90deg, #ffe066, #f5b041);
-            -webkit-background-clip: text; color: transparent; animation: pulseMessage 2s ease-in-out infinite; font-weight: bold;
-        }
-        #praiseMessage { font-size: 30px; color: #ccc; margin-bottom: 30px; font-family: sans-serif; }
+    font-size: 60px; 
+    margin-bottom: 10px; 
+    /* 💡 グラデーションを明るい黄色に変更 */
+    background: linear-gradient(90deg, #ffe066, #f5b041); 
+    -webkit-background-clip: text; 
+    color: transparent; 
+    animation: pulseMessage 2s ease-in-out infinite; 
+    font-weight: bold;
+    /* 💡 青空でもハッキリ見えるように影を少し強めに */
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4); 
+}
+
+#praiseMessage {
+    font-size: 30px; 
+    /* 💡 文字色を綺麗な水色（シアン）に変更 */
+    color: #00e5ff; 
+    margin-bottom: 30px; 
+    font-family: sans-serif; 
+    /* 💡 こちらも読みやすいように影を追加します */
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+}
         #restartBtn_winner {
             background: #00ffcc; border: none; border-radius: 4px; padding: 15px 30px; font-size: 20px;
             font-weight: bold; cursor: pointer; color: black; box-shadow: 0 0 10px rgba(0,255,204,0.5);
