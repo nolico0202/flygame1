@@ -56,17 +56,24 @@
     text-align: center; 
 }
         #winnerCloseUp { width: 50%; height: 50%; margin-bottom: 20px; position: relative; }
-        #winnerMessage {
+       #winnerMessage {
     font-size: 60px; 
     margin-bottom: 10px; 
-    /* 💡 グラデーションを明るい黄色に変更 */
+    animation: pulseMessage 2s ease-in-out infinite; 
+    font-weight: bold;
+    /* 💡 グラデーションを文字（span）側に任せるため、ここでは一旦解除します */
+    background: none;
+    -webkit-background-clip: unset;
+    color: #ffd700; /* 綺麗に見えるゴールドイエロー */
+    /* 💡 文字がハッキリ浮き出るように黒い影をつけます */
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7); 
+}
+
+/* 💡 クラッカーは元の色のまま、真ん中の文字だけを綺麗な黄色グラデーションにする設定 */
+#winnerText {
     background: linear-gradient(90deg, #ffe066, #f5b041); 
     -webkit-background-clip: text; 
     color: transparent; 
-    animation: pulseMessage 2s ease-in-out infinite; 
-    font-weight: bold;
-    /* 💡 青空でもハッキリ見えるように影を少し強めに */
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4); 
 }
 
 #praiseMessage {
@@ -75,8 +82,8 @@
     color: #00e5ff; 
     margin-bottom: 30px; 
     font-family: sans-serif; 
-    /* 💡 こちらも読みやすいように影を追加します */
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+    /* 💡 青空でも読みやすいように影を追加 */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
 }
         #restartBtn_winner {
             background: #00ffcc; border: none; border-radius: 4px; padding: 15px 30px; font-size: 20px;
