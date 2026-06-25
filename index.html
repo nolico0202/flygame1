@@ -360,10 +360,15 @@
             winnerScene.add(dirLight2);
 
             if (winnerShip.model) {
-                winnerModel = winnerShip.model.clone();
-                winnerModel.position.set(0, -0.3, 0); 
-                winnerModel.scale.set(3.5, 3.5, 3.5); // 💡 2.4 から 3.5 に大きく
-                winnerModel.rotation.y = Math.PI; // 💡機体を180度回転させて正面を向ける
+    winnerModel = winnerShip.model.clone();
+    
+    // 👇 364行目：位置を少し下に下げて、枠のセンターに合わせます
+    winnerModel.position.set(0, -1.0, 0); 
+    
+    // 👇 365行目：大迫力にするために、数値を 15.0 に大幅アップします！
+    winnerModel.scale.set(15.0, 15.0, 15.0); 
+    
+    winnerModel.rotation.y = Math.PI; // （ここは今のままでOK）
 
                 winnerModel.traverse((child) => {
                     if (child.isMesh) {
