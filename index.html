@@ -207,9 +207,19 @@ function showWinnerScreen(winnerShip) {
 
 function setupWinnerCloseUp(winnerShip) {
     let container = document.getElementById('winnerCloseUp'); container.innerHTML = '';
-    winnerScene = new THREE.Scene(); winnerCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000); winnerCamera.position.set(0, 3, 15);
-    winnerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); winnerRenderer.setSize(container.clientWidth, container.clientHeight); container.appendChild(winnerRenderer.domElement);
-    let ambientLight = new THREE.AmbientLight(0xffffff, 0.8); winnerScene.add(ambientLight); let directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); directionalLight.position.set(10, 10, 5); winnerScene.add(directionalLight);
+    winnerScene = new THREE.Scene(); 
+    winnerCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000); 
+    winnerCamera.position.set(0, 0, 12); // カメラの位置を機体の正面に調整
+    
+    winnerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
+    winnerRenderer.setSize(container.clientWidth, container.clientHeight); 
+    container.appendChild(winnerRenderer.domElement);
+    
+    // 💡 空間を3方向からめちゃくちゃ明るく照らすライト
+    let ambientLight = new THREE.AmbientLight(0xffffff, 1.5); 
+    winnerScene.add(ambientLight); 
+    let dirLight1 = new THREE.DirectionalLight(0xffffff, 1.5); dirLight1.position.set(10, 10, 10); winnerScene.add(dirLight1);
+    let dirLight2 = new THREE.DirectionalLight(0xffffff, 1.0); dirLight2.position.set(-10, -10, -10); winnerScene.add(dirLight2);
     if (winnerShip.model) { winnerModel = winnerShip.model.clone(); winnerModel.position.set(0, 0, 0); winnerModel.scale.set(1.5, 1.5, 1.5); winnerScene.add(winnerModel); }
 }
 
