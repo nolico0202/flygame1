@@ -171,12 +171,31 @@ function handleFileSelect(event, index) {
 }
 
 function startShowcase() {
-   isShowcasing = true; showcaseIndex = -1; showcaseStartTime = performance.now(); document.getElementById('ui').style.setProperty('display', 'none', 'important'); document.getElementById('startBtn').style.setProperty('display', 'none', 'important'); document.getElementById('showcaseUI').style.setProperty('display', 'block', 'important');
+    isShowcasing = true;
+    showcaseIndex = -1;
+    showcaseStartTime = performance.now();
+    
+    // 💡 フライト開始ボタン（startBtn）を押した時だけ、UIとボタンを隠すようにします
+    document.getElementById('ui').style.setProperty('display', 'none', 'important');
+    document.getElementById('startBtn').style.setProperty('display', 'none', 'important');
+    document.getElementById('showcaseUI').style.setProperty('display', 'block', 'important');
+    
     ships.forEach((ship, i) => {
-        ship.name = document.getElementById(`name${i+1}`).value || `SHIP ${i+1}`; document.getElementById(`infoName${i+1}`).innerText = ship.name;
-        const v1 = parseFloat(document.getElementById(`v1_${i+1}`).value); const vr = parseFloat(document.getElementById(`vr_${i+1}`).value); const weight = parseFloat(document.getElementById(`weight${i+1}`).value);
-        ship.displaySpeed = ((v1 + vr) * 2) / weight; ship.speed = ship.displaySpeed * 0.09; ship.vrRatio = (vr / 320);
-        if(!ship.model) { ship.model = new THREE.Mesh(new THREE.ConeGeometry(2.5, 7, 4), new THREE.MeshStandardMaterial({ color: ship.color })); ship.model.rotation.z = -Math.PI/2; ship.model.position.set(-30, groundY, (i - 1) * laneWidth); scene.add(ship.model); }
+        ship.name = document.getElementById(`name${i+1}`).value || `SHIP ${i+1}`;
+        document.getElementById(`infoName${i+1}`).innerText = ship.name;
+        const v1 = parseFloat(document.getElementById(`v1_${i+1}`).value);
+        const vr = parseFloat(document.getElementById(`vr_${i+1}`).value);
+        const weight = parseFloat(document.getElementById(`weight${i+1}`).value);
+        ship.displaySpeed = ((v1 + vr) * 2) / weight;
+        ship.speed = ship.displaySpeed * 0.09;
+        ship.vrRatio = (vr / 320);
+        
+        if (!ship.model) {
+            ship.model = new THREE.Mesh(new THREE.ConeGeometry(2.5, 7, 4), new THREE.MeshStandardMaterial({ color: ship.color }));
+            ship.model.rotation.z = -Math.PI/2;
+            ship.model.position.set(-30, groundY, (i - 1) * laneWidth);
+            scene.add(ship.model);
+        }
     });
 }
 
