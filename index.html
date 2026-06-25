@@ -241,8 +241,8 @@ let winnerRenderer, winnerScene, winnerCamera, winnerModel;
 function showWinnerScreen(winnerShip) {
     document.getElementById('ui').style.display = 'none';
     
-    // 💡 「〜が優勝！」の表示のままでOKです
-    document.getElementById('winnerText').innerText = `${winnerShip.name} が優勝！`;
+    // 💡 ここを以下のように「🎉」で挟む形に書き換えます！
+    document.getElementById('winnerText').innerHTML = `🎉 ${winnerShip.name} が優勝！ 🎉`;
     
     // ❌ 未定義のエラー原因を避けるため、以下の行をコメントアウト（または削除）します
     // setupWinnerCloseUp(winnerShip); 
