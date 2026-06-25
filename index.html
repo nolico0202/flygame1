@@ -303,11 +303,21 @@ function spawnConfetti() {
     for(let i=0; i<180; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + '%'; c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; c.style.animationDuration = (Math.random() * 2 + 1) + 's'; c.style.animationDelay = (Math.random() * 0.5) + 's'; container.appendChild(c); }
 }
 
-function resetGame() {
-    gameStarted = false; isShowcasing = false; isCountingDown = false; winningShipId = null; isTapeCut = false;
-    document . getElementById ( 'ui' ) . style . display = 'flex' ;
- document . getElementById ( 'startBtn' ) . style . display = 'block' ; 
- document . getElementById ( 'winnerUI' ) . style . display = 'none' ; document.getElementById('showcaseUI').style.display = 'none'; document.getElementById('countdownUI').style.display = 'none'; document.getElementById('confetti-container').innerHTML = ''; document.getElementById('timeTxt').innerText = '0.00';
+function resetGame () {
+ gameStarted = false ;
+ isShowcasing = false ;
+ isCountingDown = false ;
+ winningShipId = null ;
+ isTapeCut = false ;
+ 
+ // UIの表示切り替え（フライト開始ボタンを確実に復活させる）
+ document . getElementById ( 'ui' ) . style . display = 'flex' ;
+ document . getElementById ( 'startBtn' ) . style . display = 'inline-block' ;
+ document . getElementById ( 'winnerUI' ) . style . display = 'none' ;
+ document . getElementById ( 'showcaseUI' ) . style . display = 'none' ;
+ document . getElementById ( 'countdownUI' ) . style . display = 'none' ;
+ document . getElementById ( 'confetti-container' ) . innerHTML = '' ;
+ document . getElementById ( 'timeTxt' ) . innerText = '0.00' ;
     ships.forEach((ship, i) => { ship.currentSpeed = 0; ship.finished = false; if (ship.model) { ship.model.position.set(-30, groundY, (i - 1) * laneWidth); ship.model.rotation.set(0, -Math.PI / 2, 0); } document.getElementById(`status${ship.id}`).innerText = "READY"; document.getElementById(`status${ship.id}`).className = ""; });
     tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75); tapeLeft.rotation.y = 0; tapeLeft.visible = true; tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75); tapeRight.rotation.y = 0; tapeRight.visible = true; camera.position.set(-10, 2, 25); camera.lookAt(-30, groundY, 0);
 }
@@ -326,9 +336,6 @@ function showWinnerScreen(winnerShip) {
     document.getElementById('winnerUI').style.display = 'flex';
     
     document.getElementById('restartBtn_winner').onclick = () => {
-        if (winnerRenderer) {
-            winnerRenderer.dispose();
-        }
         resetGame();
     };
 }
