@@ -397,7 +397,7 @@ function animate() {
 
     if (isShowcasing) {
         let curIdx = Math.floor((now - showcaseStartTime) / 2500);
-        if (curIdx !== showcaseIndex && curIdx < 4) { showcaseIndex = curIdx; let ship = ships[showcaseIndex]; camera.position.set(ship.model.position.x + 14, ship.model.position.y + 4, ship.model.position.z + 12); camera.lookAt(ship.model.position); document.getElementById('showcaseName').innerText = ship.name; document.getElementById('showcaseSpeed').innerText = ship.displaySpeed.toFixed(1); }
+        if (curIdx !== showcaseIndex && curIdx < 4) { showcaseIndex = curIdx; let ship = ships[showcaseIndex]; camera.position.set(ship.model.position.x + 14, ship.model.position.y + 4, ship.model.position.z + 12); camera.lookAt(ship.model.position); document.getElementById('showcaseName').innerText = ship.name; document.getElementById('showcaseSpeed').innerText = Math.round(ship.currentSpeed) + " km/h";
         else if (curIdx >= 4) { isShowcasing = false; isCountingDown = true; countdownStartTime = now; document.getElementById('showcaseUI').style.display = 'none'; document.getElementById('countdownUI').style.display = 'block'; }
     } else if (isCountingDown) {
         let count = 3 - Math.floor((now - countdownStartTime) / 1000); document.getElementById('countdownUI').innerText = count > 0 ? count : "START!"; camera.position.set(-50, 5, 30); camera.lookAt(0, 0, 0);
