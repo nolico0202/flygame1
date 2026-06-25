@@ -237,10 +237,11 @@ function showResultScreen() {
     // 1. 画面を明るくするために、環境光（AmbientLight）やディレクショナルライトを強める
     // もし既存のライトがあれば、その intensity（強度）を上げます
     if (window.ambientLight) {
-        window.ambientLight.intensity = 1.5; // 明るさをアップ
+        // 💡 ここを 1.5 から 3.0 (または 4.0 など) に上げます
+        window.ambientLight.intensity = 3.0; // 明るさを大幅アップ！
     } else {
-        // ライトがなければ新しく追加して全体を明るく照らす
-        const brightLight = new THREE.AmbientLight(0xffffff, 1.5);
+        // 💡 こちらの 1.5 も 3.0 に変更します
+        const brightLight = new THREE.AmbientLight(0xffffff, 3.0);
         scene.add(brightLight);
     }
 
