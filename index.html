@@ -205,35 +205,42 @@ function showWinnerScreen(winnerShip) {
     };
 }
 
-function setupWinnerCloseUp(winnerShip) {
-    let container = document.getElementById('winnerCloseUp'); container.innerHTML = '';
-    winnerScene = new THREE.Scene(); 
-    winnerCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000); 
-    winnerCamera.position.set(0, 0, 5); // 💡 カメラをさらに機体に近づけて大きく表示
-    
-    winnerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
-    winnerRenderer.setSize(container.clientWidth, container.clientHeight); 
-    container.appendChild(winnerRenderer.domElement);
-    
-    // 🏆 空間を限界まで明るく照らすライト設定
-    let ambientLight = new THREE.AmbientLight(0xffffff, 2.5); // 💡 全体の基礎の明るさを引き上げ
-    winnerScene.add(ambientLight); 
-    let dirLight1 = new THREE.DirectionalLight(0xffffff, 2.5); dirLight1.position.set(10, 10, 10); winnerScene.add(dirLight1); // 💡 斜め上からの光も大幅に強化
-    let dirLight2 = new THREE.DirectionalLight(0xffffff, 1.5); dirLight2.position.set(-10, -10, -10); winnerScene.add(dirLight2); // 💡 裏側からの影を消す光も強化
-    if (winnerShip.model) {
-        winnerModel = winnerShip.model.clone();
-        winnerModel.position.set(0, 0, 0);
-        winnerModel.scale.set(1.8, 1.8, 1.8); // 💡 少しだけサイズもさらに大きく
-        
-        // 🏆 魔法の4行：機体のすべてのパーツの素材を「一番明るい光を反射する素材」に強制塗り替え！
-        winnerModel.traverse((child) => {
-            if (child.isMesh) {
-                child.material = new THREE.MeshLambertMaterial({ color: child.material.color, transparent: child.material.transparent, opacity: child.material.opacity });
-            }
-        });
-        
-        winnerScene.add(winnerModel);
+// レース終了・リザルト画面を表示する関数（既存の関数内に組み込んでください）
+function showResultScreen() {
+    // 1. 画面を明るくするために、環境光（AmbientLight）やディレクショナルライトを強める
+    // もし既存のライトがあれば、その intensity（強度）を上げます
+    if (window.ambientLight) {
+        window.ambientLight.intensity = 1.5; // 明るさをアップ
+    } else {
+        // ライトがなければ新しく追加して全体を明るく照らす
+        const brightLight = new THREE.AmbientLight(0xffffff, 1.5);
+        scene.add(brightLight);
     }
+
+    // スポットライトなどで勝った機体をさらに引き立てる場合
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    sunLight.position.set(5, 10, 7);
+    scene.add(sunLight);
+
+    // 2. 優勝した「チーム あお」の機体オブジェクトを取得
+    //（※変数名は実際のコードに合わせて「bluePlane」などに変更してください）
+    const winnerPlane = bluePlane; 
+
+    if (winnerPlane) {
+        // 3. カメラを「チーム あお」の機体の目の前に移動させてクローズアップ
+        // 機体の位置をベースに、少し前方・上方にカメラを配置します
+        camera.position.set(
+            winnerPlane.position.x + 0,  // 左右中央
+            winnerPlane.position.y + 2,  // 少し上から見下ろす
+            winnerPlane.position.z + 8   // 機体の手前（正面側）
+        );
+
+        // カメラの視点をしっかり「チーム あお」の機体に向ける
+        camera.lookAt(winnerPlane.position);
+    }
+
+    // 4. UI（「チーム あおが優勝！」の文字やボタン）を表示する
+    document.getElementById('result-ui').style.display = 'block'; 
 }
 
 function animate() {
