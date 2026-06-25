@@ -395,14 +395,23 @@ function animate() {
     // 勝利画面用の機体を回す
     if (winnerModel) { winnerModel.rotation.y += 0.015; winnerModel.position.y = Math.sin(now * 0.002) * 0.3; if (winnerRenderer && winnerScene && winnerCamera) { winnerRenderer.render(winnerScene, winnerCamera); } }
 
-    if (isShowcasing) {
+  if (isShowcasing) {
         let curIdx = Math.floor((now - showcaseStartTime) / 2500);
-        if (curIdx !== showcaseIndex && curIdx < 4) { showcaseIndex = curIdx; let ship = ships[showcaseIndex]; camera.position.set(ship.model.position.x + 14, ship.model.position.y + 4, ship.model.position.z + 12); camera.lookAt(ship.model.position); document.getElementById('showcaseName').innerText = ship.name; document.getElementById('showcaseSpeed').innerText = Math.round(ship.currentSpeed) + " km/h";
-        else if (curIdx >= 4) { isShowcasing = false; isCountingDown = true; countdownStartTime = now; document.getElementById('showcaseUI').style.display = 'none'; document.getElementById('countdownUI').style.display = 'block'; }
+        if (curIdx !== showcaseIndex && curIdx < 4) {
+            showcaseIndex = curIdx;
+            let ship = ships[showcaseIndex];
+            camera.position.set(ship.model.position.x + 14, ship.model.position.y + 4, ship.model.position.z + 12);
+            camera.lookAt(ship.model.position);
+            document.getElementById('showcaseName').innerText = ship.name;
+            document.getElementById('showcaseSpeed').innerText = Math.round(ship.currentSpeed) + " km/h";
+        } else if (curIdx >= 4) {
+            isShowcasing = false;
+            isCountingDown = true;
+            countdownStartTime = now;
+            document.getElementById('showcaseUI').style.display = 'none';
+            document.getElementById('countdownUI').style.display = 'block';
+        }
     } else if (isCountingDown) {
-        let count = 3 - Math.floor((now - countdownStartTime) / 1000); document.getElementById('countdownUI').innerText = count > 0 ? count : "START!"; camera.position.set(-50, 5, 30); camera.lookAt(0, 0, 0);
-        if (count < -1) { isCountingDown = false; gameStarted = true; startTime = now; document.getElementById('countdownUI').style.display = 'none'; }
-    } else if (gameStarted) {
         elapsedTime = (now - startTime) / 1000; document.getElementById('timeTxt').innerText = elapsedTime.toFixed(2); let leaderX = -100, allFin = true;
         ships.forEach(ship => {
             if (!ship.finished) {
