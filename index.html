@@ -115,10 +115,11 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
         let scene, camera, renderer, clouds = [];
-        let gameStarted = false, isShowcasing = false, isCountingDown = false;
-        let showcaseIndex = -1, showcaseStartTime = 0, countdownStartTime = 0, startTime = 0;
-        let elapsedTime = 0, winningShipId = null;
-        let tapeLeft, tapeRight, isTapeCut = false;
+let gameStarted = false, isShowcasing = false, isCountingDown = false;
+let showcaseIndex = -1, showcaseStartTime = 0, countdownStartTime = 0, startTime = 0;
+let elapsedTime = 0, winningShipId = null;
+let tapeLeft, tapeRight, isTapeCut = false;
+let leaderX = 0; // 💡 この1行を付け足してください！
         let ships = [
             { id: 1, name: "チーム あか", model: null, speed: 0, currentSpeed: 0, displaySpeed: 0, targetHeight: 0, vrRatio: 0, finished: false, color: 0xff3333 },
             { id: 2, name: "チーム みどり", model: null, speed: 0, currentSpeed: 0, displaySpeed: 0, targetHeight: 0, vrRatio: 0, finished: false, color: 0x33ff33 },
