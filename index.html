@@ -215,11 +215,19 @@ function resetGame() {
 let winnerRenderer, winnerScene, winnerCamera, winnerModel;
 function showWinnerScreen(winnerShip) {
     document.getElementById('ui').style.display = 'none';
+    
+    // 💡 「〜が優勝！」の表示のままでOKです
     document.getElementById('winnerText').innerText = `${winnerShip.name} が優勝！`;
-    setupWinnerCloseUp(winnerShip);
+    
+    // ❌ 未定義のエラー原因を避けるため、以下の行をコメントアウト（または削除）します
+    // setupWinnerCloseUp(winnerShip); 
+    
     document.getElementById('winnerUI').style.display = 'flex';
+    
     document.getElementById('restartBtn_winner').onclick = () => {
-        if (winnerRenderer) { winnerRenderer.dispose(); }
+        if (winnerRenderer) {
+            winnerRenderer.dispose();
+        }
         resetGame();
     };
 }
