@@ -142,7 +142,7 @@
     <div id="winnerCloseUp"></div>
     <div id="winnerMessage"><span id="winnerText"></span> </div>
     <div id="praiseMessage">見事なフライトでした！</div>
-    <button id="restartBtn" style="display: none;">RETRY 🔄</button>
+    <button id="restartBtn_winner">RETRY 🔄</button>
 </div>
 
 <div id="info">
@@ -151,6 +151,7 @@
     <span id="infoName2">GREEN</span>: <span id="status2">READY</span><br>
     <span id="infoName3">BLUE</span>: <span id="status3">READY</span><br>
     <span id="infoName4">YELLOW</span>: <span id="status4">READY</span><br>
+    <button id="restartBtn">RETRY 🔄</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -331,10 +332,10 @@ function animate() {
         });
         camera.position.x = leaderX - 35; camera.position.y = 6; camera.lookAt(leaderX + 25, 0, 0);
         if (allFin) {
-  gameStarted = false;
-  let winnerShip = ships.reduce((min, ship) => ship.time < min.time ? ship : min, ships[0]);
-  showWinnerScreen(winnerShip);
-  // document.getElementById('restartBtn').style.display = 'block'; // 左下のボタンを出さないように無効化
+            gameStarted = false;
+            let winnerShip = ships.reduce((min, ship) => ship.time < min.time ? ship : min, ships[0]);
+            showWinnerScreen(winnerShip);
+            document.getElementById('restartBtn').style.display = 'block';
         }
     }
     if (isTapeCut) { tapeLeft.position.x += 1.8; tapeLeft.position.z += 1.8; tapeLeft.rotation.y += 0.25; tapeRight.position.x += 1.8; tapeRight.position.z -= 1.8; tapeRight.rotation.y -= 0.25; if (tapeLeft.position.z > 60) { tapeLeft.visible = false; tapeRight.visible = false; } }
