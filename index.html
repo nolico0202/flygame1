@@ -282,12 +282,21 @@ function startShowcase() {
     ships.forEach((ship, i) => {
         ship.name = document.getElementById(`name${i+1}`).value || `SHIP ${i+1}`;
         document.getElementById(`infoName${i+1}`).innerText = ship.name;
-        const v1 = parseFloat(document.getElementById(`v1_${i+1}`).value);
-        const vr = parseFloat(document.getElementById(`vr_${i+1}`).value);
-        const weight = parseFloat(document.getElementById(`weight${i+1}`).value);
-        ship.displaySpeed = ((v1 + vr) * 2) / weight;
-        ship.speed = ship.displaySpeed * 0.09;
-        ship.vrRatio = (vr / 320);
+        const v1 = parseFloat(document.getElementById(`v1_${i+1}`).value) || 120;
+        const vr = parseFloat(document.getElementById(`vr_${i+1}`).value) || 145;
+        const weight = parseFloat(document.getElementById(`weight${i+1}`).value) || 100;
+
+        ship.v1 = v1;
+        ship.vr = vr;
+        ship.weight = weight;
+
+        // 重量（トン）が重いほど加速が鈍くなるように、毎フレームの加速の伸び（パワー）を計算
+        // （※ゲームの進むスピード感に合わせて 1000 などの数値を後から調整してもOKです）
+        ship.accelPower = 1000 / weight; 
+
+        // 初期の速度状態のリセット
+        ship.currentSpeed = 0;
+        ship.isV1Reached = false;
         
         if (!ship.model) {
             ship.model = new THREE.Mesh(new THREE.ConeGeometry(2.5, 7, 4), new THREE.MeshStandardMaterial({ color: ship.color }));
@@ -397,11 +406,54 @@ function animate() {
         elapsedTime = (now - startTime) / 1000; document.getElementById('timeTxt').innerText = elapsedTime.toFixed(2); let leaderX = -100, allFin = true;
         ships.forEach(ship => {
             if (!ship.finished) {
-                allFin = false; if (ship.currentSpeed < ship.speed) ship.currentSpeed += 0.01; ship.model.position.x += ship.currentSpeed;
-                if (ship.currentSpeed > ship.speed * ship.vrRatio) { if (ship.model.position.y < ship.targetHeight) { ship.model.position.y += 0.18; ship.model.rotation.z = Math.min(ship.model.rotation.z + 0.01, 0.3); } else { ship.model.rotation.z = Math.max(ship.model.rotation.z - 0.01, 0); } }
-                if (ship.model.position.x >= finishLineX) { ship.finished = true; ship.time = elapsedTime; document.getElementById(`status${ship.id}`).innerText = `GOAL (${elapsedTime.toFixed(2)}s)`; if (!winningShipId) { winningShipId = ship.id; isTapeCut = true; spawnConfetti(); } }
+                allFin = false;
+
+                // ① 重量から計算した加速パワーを使って、毎フレーム速度（km/h）を増加させる
+                //（※0.01はゲームの進むスピード感に合わせて調整してください）
+                if (ship.currentSpeed < ship.vr + 50) { 
+                    ship.currentSpeed += ship.accelPower * 0.01;
+                }
+
+                // ② 現在選択中（ショーケース表示中など）の速度表示を km/h で更新する
+                if (ship.id === showcaseIndex + 1) {
+                    document.getElementById("showcaseSpeed").innerText = Math.round(ship.currentSpeed) + " km/h";
+                }
+
+                // ③ 滑走路を進む（速度に応じてX座標を加算）
+                ship.model.position.x += ship.currentSpeed * 0.005;
+
+                // ④ 離陸決定速度（V1）に達した時のステータス表示
+                if (ship.currentSpeed >= ship.v1 && ship.currentSpeed < ship.vr) {
+                    document.getElementById(`status${ship.id}`).innerText = `V1 PASS (${Math.round(ship.currentSpeed)} km/h)`;
+                }
+
+                // ⑤ 機首上げ速度（VR）に達したら上昇を開始
+                if (ship.currentSpeed >= ship.vr) {
+                    // VRを超えた分の速度に応じてターゲットとなる高度（高さ）を設定
+                    ship.targetHeight = (ship.currentSpeed - ship.vr) * 0.5;
+
+                    if (ship.model.position.y < ship.targetHeight) {
+                        ship.model.position.y += 0.18;
+                        ship.model.rotation.z = Math.min(ship.model.rotation.z + 0.01, 0.3); // 機首上げアニメーション
+                    } else {
+                        ship.model.rotation.z = Math.max(ship.model.rotation.z - 0.01, 0);
+                    }
+                    document.getElementById(`status${ship.id}`).innerText = `CLIMBING (${Math.round(ship.currentSpeed)} km/h)`;
+                }
+
+                // ⑥ ゴール判定
+                if (ship.model.position.x >= finishLineX) {
+                    ship.finished = true;
+                    ship.time = elapsedTime;
+                    document.getElementById(`status${ship.id}`).innerText = `GOAL (${elapsedTime.toFixed(2)}s)`;
+                    if (!winningShipId) {
+                        winningShipId = ship.id;
+                        isTapeCut = true;
+                        spawnConfetti();
+                    }
+                }
             }
-            if(ship.model.position.x > leaderX) leaderX = ship.model.position.x;
+            if (ship.model.position.x > leaderX) leaderX = ship.model.position.x;
         });
         camera.position.x = leaderX - 35; camera.position.y = 6; camera.lookAt(leaderX + 25, 0, 0);
         if (allFin) {
