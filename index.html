@@ -2,114 +2,188 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>飛行機レース</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: 'Arial Black', sans-serif; }
+        body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: sans-serif; }
         
-        /* UI設定パネル */
-        #ui { position: absolute; top: 10px; left: 10px; color: white; background: rgba(0,0,0,0.85); padding: 12px; border-radius: 8px; z-index: 100; width: 260px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .ship-config { border-bottom: 1px solid #444; padding-bottom: 8px; margin-bottom: 8px; }
-        .ship-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #00ffcc; border-left: 4px solid #00ffcc; padding-left: 8px; display: flex; align-items: center; }
-        
-        .name-input {
-            background: transparent; border: none; border-bottom: 1px dashed #00ffcc;
-            color: #00ffcc; font-weight: bold; font-size: 13px; width: 140px; margin-left: 5px; outline: none; font-family: inherit;
+        /* 操作パネルのスタイル（横並び対応） */
+        #ui {
+            position: absolute; top: 10px; left: 10px; z-index: 100;
+            background: rgba(0,0,0,0.8); color: white; padding: 15px; border-radius: 8px;
+            display: flex; gap: 10px; flex-wrap: wrap; max-width: 900px;
         }
-        .name-input:focus { border-bottom: 1px solid #fff; color: #fff; }
+        .ship-config {
+            background: rgba(255,255,255,0.1); padding: 10px; border-radius: 4px; width: 200px;
+        }
+        .ship-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; }
+        .name-input { background: none; border: none; color: #00ffcc; font-weight: bold; font-size: 16px; margin-left: 5px; width: 130px;}
+        .input-group { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; }
+        .input-group input { width: 50px; background: #333; color: white; border: 1px solid #555; text-align: right; }
+        
+        /* タイム＆リザルト表示 */
+        #info {
+            position: absolute; bottom: 10px; left: 10px; z-index: 100;
+            background: rgba(0,0,0,0.8); color: white; padding: 15px; border-radius: 8px; font-weight: bold; line-height: 1.6;
+        }
+        
+        #showcaseUI, #countdownUI {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: white; font-weight: bold; text-align: center; z-index: 200; text-shadow: 2px 2px 4px #000;
+        }
+        #showcaseUI { display: none; font-size: 40px; }
+        #countdownUI { display: none; font-size: 100px; }
 
-        .input-group { margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
-        .input-group label { font-size: 10px; width: 140px; color: #ddd; }
-        .input-group input[type="number"] { width: 60px; background: #222; color: #fff; border: 1px solid #555; border-radius: 3px; padding: 2px; font-size: 11px; }
-        
-        #startBtn { 
-            width: 100%; padding: 10px; margin-top: 5px; cursor: pointer; font-weight: bold; font-size: 14px; 
-            background: linear-gradient(to bottom, #ffaa00, #ff8800); color: black; border: none; border-radius: 4px;
-            transition: transform 0.1s;
-        }
-        #startBtn:active { transform: scale(0.95); }
-        
-        #info { position: absolute; bottom: 10px; left: 10px; color: white; font-size: 14px; text-shadow: 2px 2px 4px black; background: rgba(0,0,0,0.6); padding: 12px; border-radius: 8px; z-index: 200; min-width: 220px; border: 1px solid rgba(255,255,255,0.2); }
-        .rank-1 { color: #ffd700; font-weight: bold; }
-        
-        #centralWin {
-            display: none; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            color: #ffd700; font-size: 120px; font-weight: bold; text-align: center;
-            text-shadow: 0 0 20px #fff, 0 0 40px #ffd700, 0 0 80px #ff8800;
-            z-index: 300; animation: win-glow 1s ease-in-out infinite alternate;
-        }
-        @keyframes win-glow { from { transform: translate(-50%, -50%) scale(1); opacity: 0.9; } to { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } }
-
-        #showcaseUI { display: none; position: absolute; bottom: 100px; right: 50px; color: white; background: rgba(0,0,0,0.85); padding: 20px; border-radius: 15px; border-right: 12px solid #ffd700; z-index: 400; min-width: 280px; box-shadow: -5px 5px 20px rgba(0,0,0,0.5); }
-        #showcaseName { font-size: 28px; margin: 0; color: #ffd700; }
-        #showcaseSpeed { font-size: 60px; margin: 0; font-family: 'Impact', sans-serif; }
-        #countdownUI { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 180px; font-weight: bold; z-index: 350; text-shadow: 0 0 30px #000; }
-        #confetti-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 250; overflow: hidden; }
-        .confetti { position: absolute; width: 12px; height: 12px; border-radius: 2px; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
-        #restartBtn { display: none; width: 100%; padding: 8px; margin-top: 10px; background: #00ffcc; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        #restartBtn { display: none; width: 100%; padding: 8px; margin-top: 10px; background: #00ffcc; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: black; }
+
+        /* 🏆 豪華な勝利画面のスタイル 🏆 */
+        #winnerUI {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.95) 100%);
+            z-index: 2000;
+            justify-content: center; align-items: center; flex-direction: column;
+            color: white; text-align: center; font-family: 'Arial Black', sans-serif;
+        }
+        #winnerCloseUp { width: 50%; height: 50%; margin-bottom: 20px; position: relative; }
+        .spinning { animation: spinWinner 10s linear infinite; }
+        @keyframes spinWinner {
+            from { transform: rotateY(0deg) rotateX(15deg); }
+            to { transform: rotateY(360deg) rotateX(15deg); }
+        }
+        #winnerMessage {
+            font-size: 60px; margin-bottom: 10px; background: linear-gradient(90deg, #deff9a, #a8e063);
+            -webkit-background-clip: text; color: transparent; animation: pulseMessage 2s ease-in-out infinite;
+        }
+        #praiseMessage { font-size: 30px; color: #ccc; margin-bottom: 30px; }
+        #restartBtn_winner {
+            background: #00ffcc; border: none; border-radius: 4px; padding: 15px 30px; font-size: 20px;
+            font-weight: bold; cursor: pointer; color: black; box-shadow: 0 0 10px rgba(0,255,204,0.5);
+        }
+        @keyframes pulseMessage {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        #confetti-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1999; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <div id="ui">
-        <div class="ship-config">
-            <div class="ship-title">🚀 <input type="text" id="name1" value="チーム　あか" class="name-input"></div>
-            <input type="file" id="upload1" accept=".glb,.gltf" style="width:100%; font-size:10px;"><br>
-            <div class="input-group"><label>離陸決定速度 (V1):</label><input type="number" id="v1_1" value="120"></div>
-            <div class="input-group"><label>機首上げ速度 (VR):</label><input type="number" id="vr_1" value="145"></div>
-            <div class="input-group"><label>機体重量 (トン):</label><input type="number" id="weight1" value="100"></div>
-        </div>
-        <div class="ship-config">
-            <div class="ship-title">🛸 <input type="text" id="name2" value="チーム　みどり" class="name-input"></div>
-            <input type="file" id="upload2" accept=".glb,.gltf" style="width:100%; font-size:10px;"><br>
-            <div class="input-group"><label>離陸決定速度 (V1):</label><input type="number" id="v1_2" value="130"></div>
-            <div class="input-group"><label>機首上げ速度 (VR):</label><input type="number" id="vr_2" value="155"></div>
-            <div class="input-group"><label>機体重量 (トン):</label><input type="number" id="weight2" value="110"></div>
-        </div>
-        <div class="ship-config">
-            <div class="ship-title">✈️ <input type="text" id="name3" value="チーム　あお" class="name-input"></div>
-            <input type="file" id="upload3" accept=".glb,.gltf" style="width:100%; font-size:10px;"><br>
-            <div class="input-group"><label>離陸決定速度 (V1):</label><input type="number" id="v1_3" value="115"></div>
-            <div class="input-group"><label>機首上げ速度 (VR):</label><input type="number" id="vr_3" value="135"></div>
-            <div class="input-group"><label>機体重量 (トン):</label><input type="number" id="weight3" value="85"></div>
-        </div>
-        <div class="ship-config">
-    <div class="ship-title">✈️ <input type="text" id="name4" value="チーム　きいろ" class="name-input"></div>
-    <input type="file" id="upload4" accept=".glb,.gltf" style="width: 100%; font-size: 10px;"><br>
-    <div class="input-group">
-        <label>離陸決定速度 (V1):</label>
-        <input type="number" id="v1_4" value="115">
+<div id="ui">
+    <div class="ship-config">
+        <div class="ship-title">🚀 <input type="text" id="name1" value="チーム あか" class="name-input"></div>
+        <input type="file" id="upload1" accept=".glb,.gltf" style="width: 100%; font-size: 10px;"><br>
+        <div class="input-group"><label>離陸決定速度 (V1):</label><input type="number" id="v1_1" value="120"></div>
+        <div class="input-group"><label>機首上げ速度 (VR):</label><input type="number" id="vr_1" value="145"></div>
+        <div class="input-group"><label>機体重量 (トン):</label><input type="number" id="weight1" value="100"></div>
     </div>
-    <div class="input-group">
-        <label>機首上げ速度 (VR):</label>
-        <input type="number" id="vr_4" value="135">
+    <div class="ship-config">
+        <div class="ship-title">🛸 <input type="text" id="name2" value="チーム みどり" class="name-input"></div>
+        <input type="file" id="upload2" accept=".glb,.gltf" style="width: 100%; font-size: 10px;"><br>
+        <div class="input-group"><label>離陸決定速度 (V1):</label><input type="number" id="v1_2" value="130"></div>
+        <div class="input-group"><label>機首上げ速度 (VR):</label><input type="number" id="vr_2" value="155"></div>
+        <div class="input-group"><label>機体重量 (トン):</label><input type="number" id="weight2" value="110"></div>
     </div>
-    <div class="input-group">
-        <label>機体重量 (トン):</label>
-        <input type="number" id="weight4" value="85">
+    <div class="ship-config">
+        <div class="ship-title">✈️ <input type="text" id="name3" value="チーム あお" class="name-input"></div>
+        <input type="file" id="upload3" accept=".glb,.gltf" style="width: 100%; font-size: 10px;"><br>
+        <div class="input-group"><label>離陸決定速度 (V1):</label><input type="number" id="v1_3" value="115"></div>
+        <div class="input-group"><label>機首上げ速度 (VR):</label><input type="number" id="vr_3" value="135"></div>
+        <div class="input-group"><label>機体重量 (トン):</label><input type="number" id="weight3" value="85"></div>
+    </div>
+    <div class="ship-config">
+        <div class="ship-title">✈️ <input type="text" id="name4" value="チーム きいろ" class="name-input"></div>
+        <input type="file" id="upload4" accept=".glb,.gltf" style="width: 100%; font-size: 10px;"><br>
+        <div class="input-group"><label>離陸決定速度 (V1):</label><input type="number" id="v1_4" value="115"></div>
+        <div class="input-group"><label>機首上げ速度 (VR):</label><input type="number" id="vr_4" value="135"></div>
+        <div class="input-group"><label>機体重量 (トン):</label><input type="number" id="weight4" value="85"></div>
     </div>
 </div>
-       <button id="startBtn" style="position: fixed; top: 20px; right: 20px; width: auto; z-index: 1000; padding: 10px 20px; font-size: 16px;">フライト開始 🏁</button>
-    </div>
 
-    <div id="showcaseUI"><p id="showcaseName"></p><p style="margin:0;font-size:12px;color:#ccc;">PERFORMANCE SPEED</p><p id="showcaseSpeed"></p></div>
-    <div id="countdownUI"></div>
-    <div id="centralWin">🏆WIN!</div>
-    <div id="confetti-container"></div>
+<button id="startBtn" style="position: fixed; top: 20px; right: 20px; width: auto; z-index: 1000; padding: 10px 20px; font-size: 16px;">フライト開始 🏁</button>
 
-    <div id="info">
-        ⏱️ TIME: <span id="timeTxt">0.00</span>s<br>
-        <span id="infoName1">RED</span>: <span id="status1">READY</span><br>
-        <span id="infoName2">GREEN</span>: <span id="status2">READY</span><br>
-        <span id="infoName3">BLUE</span>: <span id="status3">READY</span><br>
-        <span id="infoName4">YELLOW</span>: <span id="status4">READY</span><br>
-        <button id="restartBtn">RETRY 🔄</button>
-    </div>
+<div id="showcaseUI"><p id="showcaseName"></p><p style="margin:0;font-size:12px;color:#ccc;">PERFORMANCE SPEED</p><p id="showcaseSpeed"></p></div>
+<div id="countdownUI"></div>
+
+<div id="winnerUI">
+    <div id="winnerCloseUp" class="spinning"></div>
+    <div id="winnerMessage"><span class="confetti">🎉</span> <span id="winnerText">WINNER!</span> <span class="confetti">🎉</span></div>
+    <div id="praiseMessage">見事なフライトでした！</div>
+    <button id="restartBtn_winner">RETRY 🔄</button>
+</div>
+<div id="confetti-overlay"></div>
+
+<div id="info">
+    ⏱️ TIME: <span id="timeTxt">0.00</span> s<br>
+    <span id="infoName1">RED</span>: <span id="status1">READY</span><br>
+    <span id="infoName2">GREEN</span>: <span id="status2">READY</span><br>
+    <span id="infoName3">BLUE</span>: <span id="status3">READY</span><br>
+    <span id="infoName4">YELLOW</span>: <span id="status4">READY</span><br>
+    <button id="restartBtn">RETRY 🔄</button>
+</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
+        // 🏆 勝利画面をセットアップして表示する関数
+let winnerRenderer, winnerScene, winnerCamera, winnerModel;
+
+function showWinnerScreen(winnerShip) {
+    // レース中のUIを隠す
+    document.getElementById('ui').style.display = 'none';
+    
+    // 勝者テキストを更新
+    document.getElementById('winnerText').innerText = `${winnerShip.name} が優勝！`;
+    
+    // 勝者の機体をアップにする準備
+    setupWinnerCloseUp(winnerShip);
+    
+    // 画面を表示
+    document.getElementById('winnerUI').style.display = 'flex';
+    
+    // リトライボタンの動作
+    document.getElementById('restartBtn_winner').addEventListener('click', () => {
+        location.reload();
+    });
+}
+
+function setupWinnerCloseUp(winnerShip) {
+    let container = document.getElementById('winnerCloseUp');
+    container.innerHTML = ''; // クリア
+
+    winnerScene = new THREE.Scene();
+    winnerCamera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+    winnerCamera.position.set(0, 3, 15); // アップの構図
+    
+    winnerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    winnerRenderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(winnerRenderer.domElement);
+    
+    // ライト設定
+    let ambientLight = new THREE.AmbientLight(0xffffff, 0.8); 
+    winnerScene.add(ambientLight);
+    let directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); 
+    directionalLight.position.set(10, 10, 5); 
+    winnerScene.add(directionalLight);
+    
+    // 勝者の機体モデルをコピーして表示
+    if (winnerShip.model) {
+        winnerModel = winnerShip.model.clone();
+        winnerModel.position.set(0, 0, 0);
+        winnerModel.scale.set(1.5, 1.5, 1.5);
+        winnerScene.add(winnerModel);
+    }
+    
+    // くるくる回すアニメーション
+    function animateWinner() {
+        requestAnimationFrame(animateWinner);
+        winnerRenderer.render(winnerScene, winnerCamera);
+    }
+    animateWinner();
+}
         let scene, camera, renderer, clouds = [];
         let gameStarted = false, isShowcasing = false, isCountingDown = false;
         let showcaseIndex = -1, showcaseStartTime = 0, countdownStartTime = 0, startTime = 0;
@@ -337,8 +411,15 @@
                     if(ship.model.position.x > leaderX) leaderX = ship.model.position.x;
                 });
                 camera.position.x = leaderX - 35; camera.position.y = 6; camera.lookAt(leaderX + 25, 0, 0);
-                if(allFin) { gameStarted = false; document.getElementById('restartBtn').style.display = 'block'; }
-            }
+             if (allFin) {
+    gameStarted = false;
+    
+    // 🏆 勝者を判定して、新しく作った勝利画面を呼び出す
+    let winnerShip = ships.reduce((min, ship) => ship.time < min.time ? ship : min, ships[0]);
+    showWinnerScreen(winnerShip);
+
+    document.getElementById('restartBtn').style.display = 'block';
+}
             
             if (isTapeCut) {
                 tapeLeft.position.x += 1.8; tapeLeft.position.z += 1.8; tapeLeft.rotation.y += 0.25;
