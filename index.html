@@ -171,7 +171,7 @@ function handleFileSelect(event, index) {
 }
 
 function startShowcase() {
-    isShowcasing = true; showcaseIndex = -1; showcaseStartTime = performance.now(); document.getElementById('ui').style.display = 'none'; document.getElementById('showcaseUI').style.display = 'block';
+    isShowcasing = true; showcaseIndex = -1; showcaseStartTime = performance.now(); document.getElementById('ui').style.display = 'none'; document.getElementById('startBtn').style.setProperty('display', 'none', 'important');
     ships.forEach((ship, i) => {
         ship.name = document.getElementById(`name${i+1}`).value || `SHIP ${i+1}`; document.getElementById(`infoName${i+1}`).innerText = ship.name;
         const v1 = parseFloat(document.getElementById(`v1_${i+1}`).value); const vr = parseFloat(document.getElementById(`vr_${i+1}`).value); const weight = parseFloat(document.getElementById(`weight${i+1}`).value);
