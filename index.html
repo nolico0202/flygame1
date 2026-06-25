@@ -31,7 +31,18 @@
         /* 🏆 豪華な勝利画面のスタイル */
         #winnerUI { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center; }
         #winnerCloseUp { width: 60%; height: 60%; margin-bottom: 10px; position: relative; }
-        #winnerMessage { font-size: 60px; margin-bottom: 10px; background: linear-gradient(90deg, #deff9a, #a8e063); -webkit-background-clip: text; color: transparent; animation: pulseMessage 2s ease-in-out infinite; font-weight: bold; text-shadow: 0px 4px 10px rgba(0,0,0,0.7); }
+        #winnerMessage {
+    font-size: 60px;
+    margin-top: 20px;     /* 💡機体の下、文字の上に少し隙間を作る */
+    margin-bottom: 10px;
+    background: linear-gradient(90 deg, #deff9a, #a8e063);
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: pulseMessage 2s ease-in-out infinite;
+    font-weight: bold;
+    /* 👇 10pxのボケを無くし、クッキリした黒いフチ取りに変更します */
+    text-shadow: 2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000;
+}
         #praiseMessage {
     font-size: 20px;
     margin-bottom: 20px;
@@ -327,7 +338,7 @@
             winnerScene = new THREE.Scene();
             
             winnerCamera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 1000);
-            winnerCamera.position.set(0, 0.2, 3.2); 
+            winnerCamera.position.set(0, 0, 3.2);
 
             winnerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             winnerRenderer.setSize(container.clientWidth, container.clientHeight);
@@ -348,6 +359,7 @@
                 winnerModel = winnerShip.model.clone();
                 winnerModel.position.set(0, -0.3, 0); 
                 winnerModel.scale.set(2.4, 2.4, 2.4); 
+                winnerModel.rotation.y = Math.PI; // 💡機体を180度回転させて正面を向ける
 
                 winnerModel.traverse((child) => {
                     if (child.isMesh) {
