@@ -183,72 +183,8 @@ function init() {
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight); document.body.appendChild(renderer.domElement);
     const ambLight = new THREE.AmbientLight(0xffffff, 0.9); scene.add(ambLight); const dirLight = new THREE.DirectionalLight(0xffffff, 0.7); dirLight.position.set(20, 50, 20); scene.add(dirLight);
-    // --- 🛣️ 高精細な滑走路テクスチャの生成 ---
-function createRunwayTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1024;
-    canvas.height = 512;
-    const ctx = canvas.getContext('2d');
-
-    // 1. ベースのアスファルト（ノイズ入りのダークグレー）
-    ctx.fillStyle = '#55575c'; // ← ここを明るいグレーに変更しました
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // アスファルトのざらざら感を出すための微細なノイズ
-    for (let i = 0; i < 5000; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const size = Math.random() * 2;
-        ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.15)';
-        ctx.fillRect(x, y, size, size);
-    }
-
-    // 2. 両サイドのエッジライン（黄色）
-    ctx.fillStyle = '#ffcc00';
-    ctx.fillRect(0, 0, canvas.width, 15); // 上のエッジ
-    ctx.fillRect(0, canvas.height - 15, canvas.width, 15); // 下のエッジ
-
-    // 3. レース用のグリッド線・スタート枠（等間隔に配置）
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.lineWidth = 4;
-    for (let x = 50; x < canvas.width; x += 150) {
-        // 横断するグリッド線
-        ctx.beginPath();
-        ctx.moveTo(x, 15);
-        ctx.lineTo(x, canvas.height - 15);
-        ctx.stroke();
-    }
-
-    // 4. 中央の破線（センターライン）
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 8;
-    ctx.setLineDash([40, 30]); // [線の長さ, 空白の長さ]
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height / 2);
-    ctx.lineTo(canvas.width, canvas.height / 2);
-    ctx.stroke();
-    ctx.setLineDash([]); // ダッシュ設定をリセット
-
-    const texture = new THREE.CanvasTexture(canvas);
-    // 横方向（飛行機が進む方向）にテクスチャを繰り返しループさせる設定
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.repeat.set(10, 1); // 10回繰り返して細長く見せる
-    return texture;
-}
-
-// 新しい滑走路の作成（マテリアルに生成したテクスチャを適用）
-const runwayTex = createRunwayTexture();
-const runwayMat = new THREE.MeshStandardMaterial({
-    map: runwayTex,
-    roughness: 0.8, // 反射を抑えてアスファルトっぽく
-    metalness: 0.1
-});
-
-const runway = new THREE.Mesh(new THREE.PlaneGeometry(1000, 60), runwayMat); // 横幅をレーンに合わせ少しシャープに(100→60)
-runway.rotation.x = -Math.PI / 2;
-runway.position.set(400, groundY - 0.2, 0);
-scene.add(runway);
-// ----------------------------------------
+    const runway = new THREE.Mesh(new THREE.PlaneGeometry(1000, 100), new THREE.MeshStandardMaterial({ color: 0x999999 })); runway.rotation.x = -Math.PI / 2; runway.position.set(400, groundY - 0.2, 0); scene.add(runway);
+    const line = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1), new THREE.MeshBasicMaterial({ color: 0xffffff })); line.rotation.x = -Math.PI / 2; line.position.set(400, groundY - 0.15, 0); scene.add(line);
     const gate = new THREE.Group(); const poleGeo = new THREE.CylinderGeometry(0.6, 0.6, 35, 12); const poleMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.8, roughness: 0.2 });
     const pL = new THREE.Mesh(poleGeo, poleMat); pL.position.set(0, 10, laneWidth * 3.5); gate.add(pL); const pR = new THREE.Mesh(poleGeo, poleMat); pR.position.set(0, 10, -laneWidth * 3.5); gate.add(pR);
     const boardGeo = new THREE.BoxGeometry(1.5, 8, laneWidth * 7.5); const boardMat = new THREE.MeshStandardMaterial({ map: createFinishTexture() }); const board = new THREE.Mesh(boardGeo, boardMat); board.position.set(0, 25, 0); gate.add(board); gate.position.set(finishLineX, groundY, 0); scene.add(gate);
@@ -303,21 +239,9 @@ function spawnConfetti() {
     for(let i=0; i<180; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + '%'; c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; c.style.animationDuration = (Math.random() * 2 + 1) + 's'; c.style.animationDelay = (Math.random() * 0.5) + 's'; container.appendChild(c); }
 }
 
-function resetGame () {
- gameStarted = false ;
- isShowcasing = false ;
- isCountingDown = false ;
- winningShipId = null ;
- isTapeCut = false ;
- 
- // UIの表示切り替え（フライト開始ボタンを確実に復活させる）
- document . getElementById ( 'ui' ) . style . display = 'flex' ;
- document . getElementById ( 'startBtn' ) . style . display = 'inline-block' ;
- document . getElementById ( 'winnerUI' ) . style . display = 'none' ;
- document . getElementById ( 'showcaseUI' ) . style . display = 'none' ;
- document . getElementById ( 'countdownUI' ) . style . display = 'none' ;
- document . getElementById ( 'confetti-container' ) . innerHTML = '' ;
- document . getElementById ( 'timeTxt' ) . innerText = '0.00' ;
+function resetGame() {
+    gameStarted = false; isShowcasing = false; isCountingDown = false; winningShipId = null; isTapeCut = false;
+    document.getElementById('ui').style.display = 'flex'; document.getElementById('restartBtn').style.display = 'none'; document.getElementById('winnerUI').style.display = 'none'; document.getElementById('showcaseUI').style.display = 'none'; document.getElementById('countdownUI').style.display = 'none'; document.getElementById('confetti-container').innerHTML = ''; document.getElementById('timeTxt').innerText = '0.00';
     ships.forEach((ship, i) => { ship.currentSpeed = 0; ship.finished = false; if (ship.model) { ship.model.position.set(-30, groundY, (i - 1) * laneWidth); ship.model.rotation.set(0, -Math.PI / 2, 0); } document.getElementById(`status${ship.id}`).innerText = "READY"; document.getElementById(`status${ship.id}`).className = ""; });
     tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75); tapeLeft.rotation.y = 0; tapeLeft.visible = true; tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75); tapeRight.rotation.y = 0; tapeRight.visible = true; camera.position.set(-10, 2, 25); camera.lookAt(-30, groundY, 0);
 }
@@ -336,6 +260,9 @@ function showWinnerScreen(winnerShip) {
     document.getElementById('winnerUI').style.display = 'flex';
     
     document.getElementById('restartBtn_winner').onclick = () => {
+        if (winnerRenderer) {
+            winnerRenderer.dispose();
+        }
         resetGame();
     };
 }
