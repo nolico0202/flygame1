@@ -341,8 +341,9 @@
             container.innerHTML = '';
             winnerScene = new THREE.Scene();
             
-            winnerCamera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 1000);
-            winnerCamera.position.set(0, 0, 3.2);
+           winnerCamera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 1000);
+winnerCamera.position.set(0, 0, 6.0); // 💡 カメラを少し引いて機体全体が映るようにします
+winnerCamera.lookAt(0, 0, 0);         // 💡 【重要】カメラを中央の機体に真っ直ぐ向けます！
 
             winnerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             winnerRenderer.setSize(container.clientWidth, container.clientHeight);
