@@ -8,12 +8,7 @@
         body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: 'Arial Black', sans-serif; }
         
         /* 🛠️ 操作パネルを横並びにするスタイル */
-        #ui {
-            position: absolute; top: 10px; left: 10px; z-index: 100;
-            background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 8px;
-            display: flex; gap: 10px; flex-wrap: wrap; max-width: 960px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
+        #ui { position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; max-width: 960px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .ship-config { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 4px; width: 210px; border-bottom: none; }
         .ship-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #00ffcc; border-left: 4px solid #00ffcc; padding-left: 8px; display: flex; align-items: center; }
         .name-input { background: transparent; border: none; border-bottom: 1px dashed #00ffcc; color: #00ffcc; font-weight: bold; font-size: 13px; width: 120px; margin-left: 5px; outline: none; font-family: inherit; }
@@ -22,36 +17,42 @@
         .input-group input[type="number"] { width: 50px; background: #222; color: #fff; border: 1px solid #555; border-radius: 3px; padding: 2px; font-size: 11px; text-align: right; }
         
         /* ⏱️ タイム＆リザルト表示 */
-        #info {
-            position: absolute; bottom: 10px; left: 10px; color: white; font-size: 14px; text-shadow: 2px 2px 4px black;
-            background: rgba(0,0,0,0.6); padding: 12px; border-radius: 8px; z-index: 200; min-width: 220px;
-            border: 1px solid rgba(255,255,255,0.2); line-height: 1.6;
-        }
-        
+        #info { position: absolute; bottom: 10px; left: 10px; color: white; font-size: 14px; text-shadow: 2px 2px 4px black; background: rgba(0,0,0,0.6); padding: 12px; border-radius: 8px; z-index: 200; min-width: 220px; border: 1px solid rgba(255,255,255,0.2); line-height: 1.6; }
         #showcaseUI { display: none; position: absolute; bottom: 100px; right: 50px; color: white; background: rgba(0,0,0,0.85); padding: 20px; border-radius: 15px; border-right: 12px solid #ffd700; z-index: 400; min-width: 280px; box-shadow: -5px 5px 20px rgba(0,0,0,0.5); }
         #showcaseName { font-size: 28px; margin: 0; color: #ffd700; }
         #showcaseSpeed { font-size: 60px; margin: 0; font-family: 'Impact', sans-serif; }
         #countdownUI { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 180px; font-weight: bold; z-index: 350; text-shadow: 0 0 30px #000; }
-        
         #confetti-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 250; overflow: hidden; }
+        
         .confetti { position: absolute; width: 12px; height: 12px; border-radius: 2px; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
-        
         #restartBtn { display: none; width: 100%; padding: 8px; margin-top: 10px; background: #00ffcc; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: black; }
         
         /* 🏆 豪華な勝利画面のスタイル */
-        #winnerUI {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center;
-        }
+        #winnerUI { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center; }
         #winnerCloseUp {
-            width: 80%; height: 300px; margin-bottom: -20px; position: relative; z-index: 2100;
-        }
-        #winnerMessage {
-            font-size: 60px; margin-top: 10px; margin-bottom: 10px; color: #ffcc00; font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); animation: pulseMessage 2s ease-in-out infinite;
-        }
-        #praiseMessage { font-size: 20px; margin-bottom: 20px; color: #ffcc00; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); }
+    width: 80%;           /* 💡 60% から 80% に広げて機体を大きく */
+    height: 300px;        /* 💡 %指定から固定値（300px）にして確実にエリアを確保 */
+    margin-bottom: -20px; /* 💡 文字との隙間を詰める */
+    position: relative;
+    z-index: 2100;        /* 💡 文字より手前に来るように設定 */
+}
+
+#winnerMessage {
+    font-size: 60px;
+    margin-top: 10px;     /* 💡 機体のすぐ下に来るように微調整 */
+    margin-bottom: 10px;
+    color: #ffcc00;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    animation: pulseMessage 2s ease-in-out infinite;
+}
+        #praiseMessage {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #ffcc00;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0); /* 👈 文字に黒い影をつける */
+}
         #restartBtn_winner { background: #00ffcc; border: none; border-radius: 4px; padding: 15px 30px; font-size: 20px; font-weight: bold; cursor: pointer; color: black; box-shadow: 0 0 15px rgba(0,255,204,0.6); }
         
         @keyframes pulseMessage { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -88,19 +89,19 @@
             <div class="input-group"><label>機体重量 (トン):</label><input type="number" id="weight4" value="85"></div>
         </div>
     </div>
-
+    
     <button id="startBtn" style="position: fixed; top: 20px; right: 20px; width: auto; z-index: 1000; padding: 10px 20px; font-size: 16px; background: linear-gradient(to bottom, #ffaa00, #ff8800); color: black; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">フライト開始 🏁</button>
     <div id="showcaseUI"><p id="showcaseName"></p><p style="margin:0;font-size:12px;color:#ccc;">PERFORMANCE SPEED</p><p id="showcaseSpeed"></p></div>
     <div id="countdownUI"></div>
     <div id="confetti-container"></div>
-
+    
     <div id="winnerUI">
         <div id="winnerCloseUp"></div>
         <div id="winnerMessage">🎉 <span id="winnerText">WINNER!</span> 🎉</div>
         <div id="praiseMessage">見事なフライトでした！</div>
         <button id="restartBtn_winner">RETRY 🔄</button>
     </div>
-
+    
     <div id="info">
         ⏱️ TIME: <span id="timeTxt">0.00</span>s<br>
         <span id="infoName1">RED</span>: <span id="status1">READY</span><br>
@@ -118,23 +119,21 @@
         let showcaseIndex = -1, showcaseStartTime = 0, countdownStartTime = 0, startTime = 0;
         let elapsedTime = 0, winningShipId = null;
         let tapeLeft, tapeRight, isTapeCut = false;
-        let leaderX = 0; // 💡 追加：最前線の位置を追跡する変数
-        let winnerScene, winnerCamera, winnerRenderer, winnerModel; // 💡 追加：勝利画面用の変数
-
         let ships = [
             { id: 1, name: "チーム あか", model: null, speed: 0, currentSpeed: 0, displaySpeed: 0, targetHeight: 0, vrRatio: 0, finished: false, color: 0xff3333 },
             { id: 2, name: "チーム みどり", model: null, speed: 0, currentSpeed: 0, displaySpeed: 0, targetHeight: 0, vrRatio: 0, finished: false, color: 0x33ff33 },
             { id: 3, name: "チーム あお", model: null, speed: 0, currentSpeed: 0, displaySpeed: 0, targetHeight: 0, vrRatio: 0, finished: false, color: 0x3333ff },
             { id: 4, name: "チーム きいろ", model: null, speed: 0, currentSpeed: 0, displaySpeed: 0, targetHeight: 0, vrRatio: 0, finished: false, color: 0xffff33 }
         ];
-
         const finishLineX = 250, groundY = -8, laneWidth = 7;
 
         function createFinishTexture() {
             const canvas = document.createElement('canvas');
-            canvas.width = 512; canvas.height = 128;
+            canvas.width = 512;
+            canvas.height = 128;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 512, 128);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 512, 128);
             ctx.fillStyle = '#000000';
             const size = 32;
             for(let y=0; y<128; y+=size) {
@@ -142,9 +141,15 @@
                     if((x+y)/size % 2 === 0) ctx.fillRect(x, y, size, size);
                 }
             }
-            ctx.fillStyle = '#ffcc00'; ctx.fillRect(64, 20, 384, 88);
-            ctx.strokeStyle = '#000000'; ctx.lineWidth = 4; ctx.strokeRect(64, 20, 384, 88);
-            ctx.fillStyle = '#000000'; ctx.font = 'bold 64px Arial'; ctx.textAlign = 'center'; ctx.fillText('FINISH', 256, 85);
+            ctx.fillStyle = '#ffcc00';
+            ctx.fillRect(64, 20, 384, 88);
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(64, 20, 384, 88);
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 64px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('FINISH', 256, 85);
             return new THREE.CanvasTexture(canvas);
         }
 
@@ -157,127 +162,178 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            const ambLight = new THREE.AmbientLight(0xffffff, 0.9); scene.add(ambLight);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.7); dirLight.position.set(20, 50, 20); scene.add(dirLight);
+            const ambLight = new THREE.AmbientLight(0xffffff, 0.9);
+            scene.add(ambLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+            dirLight.position.set(20, 50, 20);
+            scene.add(dirLight);
 
             const runway = new THREE.Mesh(new THREE.PlaneGeometry(1000, 100), new THREE.MeshStandardMaterial({ color: 0x999999 }));
-            runway.rotation.x = -Math.PI / 2; runway.position.set(400, groundY - 0.2, 0); scene.add(runway);
+            runway.rotation.x = -Math.PI / 2;
+            runway.position.set(400, groundY - 0.2, 0);
+            scene.add(runway);
 
             const line = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-            line.rotation.x = -Math.PI / 2; line.position.set(400, groundY - 0.15, 0); scene.add(line);
+            line.rotation.x = -Math.PI / 2;
+            line.position.set(400, groundY - 0.15, 0);
+            scene.add(line);
 
             const gate = new THREE.Group();
             const poleGeo = new THREE.CylinderGeometry(0.6, 0.6, 35, 12);
             const poleMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.8, roughness: 0.2 });
-            const pL = new THREE.Mesh(poleGeo, poleMat); pL.position.set(0, 10, laneWidth * 3.5); gate.add(pL);
-            const pR = new THREE.Mesh(poleGeo, poleMat); pR.position.set(0, 10, -laneWidth * 3.5); gate.add(pR);
+            const pL = new THREE.Mesh(poleGeo, poleMat);
+            pL.position.set(0, 10, laneWidth * 3.5);
+            gate.add(pL);
+            const pR = new THREE.Mesh(poleGeo, poleMat);
+            pR.position.set(0, 10, -laneWidth * 3.5);
+            gate.add(pR);
+            const boardGeo = new THREE.BoxGeometry(1.5, 8, laneWidth * 7.5);
+            const boardMat = new THREE.MeshStandardMaterial({ map: createFinishTexture() });
+            const board = new THREE.Mesh(boardGeo, boardMat);
+            board.position.set(0, 25, 0);
+            gate.add(board);
+            gate.position.set(finishLineX, groundY, 0);
+            scene.add(gate);
 
-            const tapeGeo = new THREE.PlaneGeometry(1, laneWidth * 7);
-            const tapeMat = new THREE.MeshBasicMaterial({ color: 0xff3333, side: THREE.DoubleSide });
-            tapeLeft = new THREE.Mesh(tapeGeo, tapeMat); tapeLeft.rotation.y = Math.PI / 2; tapeLeft.position.set(0, 3, laneWidth * 1.75); gate.add(tapeLeft);
-            tapeRight = new THREE.Mesh(tapeGeo, tapeMat); tapeRight.rotation.y = Math.PI / 2; tapeRight.position.set(0, 3, -laneWidth * 1.75); gate.add(tapeRight);
-            gate.position.set(finishLineX, groundY, 0); scene.add(gate);
+            const tapeGeo = new THREE.BoxGeometry(0.1, 1.2, laneWidth * 3.5);
+            const tapeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            tapeLeft = new THREE.Mesh(tapeGeo, tapeMat);
+            tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75);
+            scene.add(tapeLeft);
+            tapeRight = new THREE.Mesh(tapeGeo, tapeMat);
+            tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75);
+            scene.add(tapeRight);
 
-            const fMat = new THREE.MeshBasicMaterial({ map: createFinishTexture(), side: THREE.DoubleSide });
-            const fMesh = new THREE.Mesh(new THREE.PlaneGeometry(laneWidth * 7, 5), fMat); fMesh.position.set(finishLineX, groundY + 12, 0); fMesh.rotation.y = Math.PI / 2; scene.add(fMesh);
+            for(let i=0; i<40; i++) createCloud(Math.random() * 600 - 100);
 
-            for (let i = 0; i < 45; i++) {
-                const cGeo = new THREE.SphereGeometry(6 + Math.random() * 8, 8, 8);
-                const cMat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
-                const mesh = new THREE.Mesh(cGeo, cMat);
-                mesh.position.set(Math.random() * 800 - 200, 25 + Math.random() * 30, Math.random() * 160 - 80);
-                scene.add(mesh); clouds.push(mesh);
-            }
-
-            ships.forEach((ship, i) => {
-                const z = (i - 1.5) * laneWidth;
-                const group = new THREE.Group(); group.position.set(-60, groundY, z); scene.add(group);
-                ship.model = group;
-                createDefaultConeModel(ship);
-                setupUploadHandler(ship);
-            });
-
+            document.getElementById('upload1').addEventListener('change', (e) => handleFileSelect(e, 0));
+            document.getElementById('upload2').addEventListener('change', (e) => handleFileSelect(e, 1));
+            document.getElementById('upload3').addEventListener('change', (e) => handleFileSelect(e, 2));
+            document.getElementById('upload4').addEventListener('change', (e) => handleFileSelect(e, 3));
             document.getElementById('startBtn').addEventListener('click', startShowcase);
             document.getElementById('restartBtn').addEventListener('click', resetGame);
-            document.getElementById('restartBtn_winner').addEventListener('click', resetGame);
             window.addEventListener('resize', onWindowResize);
             animate();
         }
 
-        function createDefaultConeModel(ship) {
-            const geo = new THREE.ConeGeometry(1.4, 4.5, 5);
-            const mat = new THREE.MeshStandardMaterial({ color: ship.color, roughness: 0.4, metalness: 0.2 });
-            const mesh = new THREE.Mesh(geo, mat); mesh.rotation.z = -Math.PI / 2; mesh.position.y = 1.4; groupTraverseCast(mesh);
-            ship.model.add(mesh);
+        function createCloud(startX = 250) {
+            const group = new THREE.Group();
+            const mat = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+            for(let i=0; i<6; i++) {
+                const part = new THREE.Mesh(new THREE.SphereGeometry(3 + Math.random() * 4, 8, 8), mat);
+                part.position.set(i * 3, Math.random() * 3, Math.random() * 3);
+                group.add(part);
+            }
+            group.position.set(startX, 15 + Math.random() * 40, Math.random() * 120 - 60);
+            scene.add(group);
+            clouds.push(group);
         }
 
-        function groupTraverseCast(obj) { obj.traverse(c => { if(c.isMesh) { c.castShadow = true; c.receiveShadow = true; } }); }
-
-        function setupUploadHandler(ship) {
-            document.getElementById(`upload${ship.id}`).addEventListener('change', (e) => {
-                const file = e.target.files[0]; if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const loader = new GLTFLoader();
-                    loader.parse(event.target.result, '', (gltf) => {
-                        while(ship.model.children.length > 0){ ship.model.remove(ship.model.children[0]); }
-                        const imported = gltf.scene;
-                        const box = new THREE.Box3().setFromObject(imported);
-                        const size = box.getSize(new THREE.Vector3());
-                        const maxDim = Math.max(size.x, size.y, size.z);
-                        if(maxDim > 0) { const s = 5.0 / maxDim; imported.scale.set(s, s, s); }
-                        imported.rotation.y = Math.PI / 2; imported.position.y = 0; groupTraverseCast(imported);
-                        ship.model.add(imported);
-                    });
-                };
-                reader.readAsArrayBuffer(file);
-            });
+        function handleFileSelect(event, index) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                new THREE.GLTFLoader().parse(e.target.result, '', (gltf) => {
+                    if (ships[index].model) scene.remove(ships[index].model);
+                    ships[index].model = gltf.scene;
+                    const box = new THREE.Box3().setFromObject(gltf.scene);
+                    const scale = 6.0 / box.getSize(new THREE.Vector3()).length();
+                    gltf.scene.scale.set(scale, scale, scale);
+                    gltf.scene.rotation.y = -Math.PI / 2;
+                    gltf.scene.position.set(-30, groundY, (index - 1) * laneWidth);
+                    scene.add(gltf.scene);
+                });
+            };
+            reader.readAsArrayBuffer(event.target.files[0]);
         }
 
         function startShowcase() {
-            document.getElementById('ui').style.display = 'none';
-            document.getElementById('startBtn').style.display = 'none';
-            ships.forEach(ship => {
-                const id = ship.id;
-                ship.v1 = parseFloat(document.getElementById(`v1_${id}`).value) || 120;
-                ship.vr = parseFloat(document.getElementById(`vr_${id}`).value) || 145;
-                ship.weight = parseFloat(document.getElementById(`weight${id}`).value) || 100;
-                const nameVal = document.getElementById(`name${id}`).value.trim();
-                if(nameVal) ship.name = nameVal;
-                document.getElementById(`infoName${id}`).innerText = ship.name.toUpperCase();
+            isShowcasing = true;
+            showcaseIndex = -1;
+            showcaseStartTime = performance.now();
+            document.getElementById('ui').style.setProperty('display', 'none', 'important');
+            document.getElementById('startBtn').style.setProperty('display', 'none', 'important');
+            document.getElementById('showcaseUI').style.setProperty('display', 'block', 'important');
+            ships.forEach((ship, i) => {
+                ship.name = document.getElementById(`name${i+1}`).value || `SHIP ${i+1}`;
+                document.getElementById(`infoName${i+1}`).innerText = ship.name;
+                const v1 = parseFloat(document.getElementById(`v1_${i+1}`).value);
+                const vr = parseFloat(document.getElementById(`vr_${i+1}`).value);
+                const weight = parseFloat(document.getElementById(`weight${i+1}`).value);
+                ship.displaySpeed = ((v1 + vr) * 2) / weight;
+                ship.speed = ship.displaySpeed * 0.09;
+                ship.vrRatio = (vr / 320);
+                if (!ship.model) {
+                    ship.model = new THREE.Mesh(new THREE.ConeGeometry(2.5, 7, 4), new THREE.MeshStandardMaterial({ color: ship.color }));
+                    ship.model.rotation.z = -Math.PI/2;
+                    ship.model.position.set(-30, groundY, (i - 1) * laneWidth);
+                    scene.add(ship.model);
+                }
             });
-            isShowcasing = true; showcaseIndex = 0; showcaseStartTime = performance.now();
-            document.getElementById('showcaseUI').style.display = 'block';
-        }
-
-        function startCountdown() {
-            isShowcasing = false; document.getElementById('showcaseUI').style.display = 'none';
-            isCountingDown = true; countdownStartTime = performance.now();
-            document.getElementById('countdownUI').style.display = 'block';
-        }
-
-        function startRace() {
-            isCountingDown = false; document.getElementById('countdownUI').style.display = 'none';
-            gameStarted = true; startTime = performance.now();
         }
 
         function spawnConfetti() {
+            const colors = ['#ffd700', '#ff0000', '#00ff00', '#0000ff', '#ffffff', '#ff00ff'];
             const container = document.getElementById('confetti-container');
-            const colors = ['#ffd700', '#ff3333', '#33ff33', '#3333ff', '#ff00ff', '#00ffff', '#ffffff'];
-            for (let i = 0; i < 150; i++) {
-                const d = document.createElement('div'); d.className = 'confetti';
-                d.style.left = Math.random() * 100 + '%'; d.style.top = '-20px';
-                d.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                d.style.animationDelay = Math.random() * 1.5 + 's'; d.style.animationDuration = 2 + Math.random() * 2.5 + 's';
-                container.appendChild(d);
-                setTimeout(() => d.remove(), 5000);
+            container.innerHTML = '';
+            for(let i=0; i<180; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + '%';
+                c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                c.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                c.style.animationDelay = (Math.random() * 0.5) + 's';
+                container.appendChild(c);
             }
         }
 
+        function resetGame() {
+            gameStarted = false;
+            isShowcasing = false;
+            isCountingDown = false;
+            winningShipId = null;
+            isTapeCut = false;
+            if (winnerModel) {
+                winnerScene.remove(winnerModel);
+                winnerModel = null;
+            }
+            document.getElementById('ui').style.display = 'flex';
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('restartBtn').style.display = 'none';
+            document.getElementById('winnerUI').style.display = 'none';
+            document.getElementById('showcaseUI').style.display = 'none';
+            document.getElementById('countdownUI').style.display = 'none';
+            document.getElementById('confetti-container').innerHTML = '';
+            document.getElementById('timeTxt').innerText = '0.00';
+            ships.forEach((ship, i) => {
+                ship.currentSpeed = 0;
+                ship.finished = false;
+                if (ship.model) {
+                    ship.model.position.set(-30, groundY, (i - 1) * laneWidth);
+                    ship.model.rotation.set(0, -Math.PI / 2, 0);
+                }
+                document.getElementById(`status${ship.id}`).innerText = "READY";
+            });
+            tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75);
+            tapeLeft.rotation.y = 0;
+            tapeLeft.visible = true;
+            tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75);
+            tapeRight.rotation.y = 0;
+            tapeRight.visible = true;
+            camera.position.set(-15, 3, 30);
+            camera.lookAt(-30, groundY, 0);
+        }
+
+        let winnerRenderer, winnerScene, winnerCamera, winnerModel;
+
         function showWinnerScreen(winnerShip) {
+            document.getElementById('ui').style.display = 'none';
             document.getElementById('winnerText').innerText = `${winnerShip.name} が優勝！`;
-            document.getElementById('winnerUI').style.display = 'flex';
             setupWinnerCloseUp(winnerShip);
+            document.getElementById('winnerUI').style.display = 'flex';
+            document.getElementById('restartBtn_winner').onclick = () => {
+                if (winnerRenderer) { winnerRenderer.dispose(); }
+                resetGame();
+            };
         }
 
         function setupWinnerCloseUp(winnerShip) {
@@ -285,37 +341,35 @@
             container.innerHTML = '';
             winnerScene = new THREE.Scene();
             
-            // 💡 カメラの視野角を調整し、機体が綺麗に収まるように設定
             winnerCamera = new THREE.PerspectiveCamera(38, container.clientWidth / container.clientHeight, 0.1, 1000);
-            winnerCamera.position.set(0, 0, 2.5); 
+            winnerCamera.position.set(0, 0, 2.5); // 💡 3.2 から 2.5 にしてカメラを近づける
 
             winnerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             winnerRenderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(winnerRenderer.domElement);
 
-            // 💡 機体を明るく綺麗に見せるための照明設定
-            let ambientLight = new THREE.AmbientLight(0xffffff, 3.5);
+            let ambientLight = new THREE.AmbientLight(0xffffff, 3.5); 
             winnerScene.add(ambientLight);
+
             let dirLight1 = new THREE.DirectionalLight(0xffffff, 4.0);
             dirLight1.position.set(10, 15, 10);
             winnerScene.add(dirLight1);
+
             let dirLight2 = new THREE.DirectionalLight(0xffffff, 2.5);
             dirLight2.position.set(-10, -10, -10);
             winnerScene.add(dirLight2);
 
             if (winnerShip.model) {
-                winnerModel = winnerShip.model.clone(); 
-                // 💡 画面中央のベストな位置（少し下め）に配置
-                winnerModel.position.set(0, -0.5, 0); 
-                // 💡 枠いっぱいに表示される大迫力サイズ（4.5倍）
-                winnerModel.scale.set(4.5, 4.5, 4.5); 
-                winnerModel.rotation.y = Math.PI; // 正面を向ける
-                
+                winnerModel = winnerShip.model.clone();
+                winnerModel.position.set(0, -0.3, 0); 
+                winnerModel.scale.set(3.5, 3.5, 3.5); // 💡 2.4 から 3.5 に大きく
+                winnerModel.rotation.y = Math.PI; // 💡機体を180度回転させて正面を向ける
+
                 winnerModel.traverse((child) => {
                     if (child.isMesh) {
-                        child.material = new THREE.MeshStandardMaterial({
-                            color: child.material.color,
-                            transparent: child.material.transparent,
+                        child.material = new THREE.MeshStandardMaterial({ 
+                            color: child.material.color, 
+                            transparent: child.material.transparent, 
                             opacity: child.material.opacity,
                             roughness: 0.3,
                             metalness: 0.1
@@ -324,117 +378,115 @@
                 });
                 winnerScene.add(winnerModel);
             }
-        } 
+        }
 
         function animate() {
             requestAnimationFrame(animate);
             let now = performance.now();
             let flowSpeed = gameStarted ? 0.9 : 0.1;
             clouds.forEach(c => {
-                c.position.x -= flowSpeed; if(c.position.x < -200) c.position.x = 400;
+                c.position.x -= flowSpeed;
+                if(c.position.x < -200) c.position.x = 400;
             });
 
-            if (isShowcasing) {
-                let sTime = (now - showcaseStartTime) / 1000;
-                if (sTime > 2.5) {
-                    showcaseIndex++; showcaseStartTime = now;
-                    if (showcaseIndex >= 4) { startCountdown(); return; }
+            if (winnerModel) {
+                winnerModel.rotation.y += 0.015;
+                winnerModel.position.y = Math.sin(now * 0.002) * 0.15 - 0.3;
+                if (winnerRenderer && winnerScene && winnerCamera) {
+                    winnerRenderer.render(winnerScene, winnerCamera);
                 }
-                let curShip = ships[showcaseIndex];
-                document.getElementById('showcaseName').innerText = curShip.name;
-                let targetMax = Math.round((curShip.vr * 15) / (curShip.weight * 0.08));
-                curShip.displaySpeed += (targetMax - curShip.displaySpeed) * 0.08;
-                document.getElementById('showcaseSpeed').innerText = Math.round(curShip.displaySpeed) + " km/h";
-                camera.position.set(curShip.model.position.x + 12, groundY + 3, curShip.model.position.z + 10);
-                camera.lookAt(curShip.model.position);
-            } 
-            else if (isCountingDown) {
-                let cTime = (now - countdownStartTime) / 1000;
-                let count = 3 - Math.floor(cTime);
-                if (count <= 0) { startRace(); } else { document.getElementById('countdownUI').innerText = count; }
-                camera.position.set(-95, groundY + 8, 0); camera.lookAt(-40, groundY + 2, 0);
-            } 
-            else if (gameStarted) {
+            }
+
+            if (isShowcasing) {
+                let curIdx = Math.floor((now - showcaseStartTime) / 2500);
+                if (curIdx !== showcaseIndex && curIdx < 4) {
+                    showcaseIndex = curIdx;
+                    let ship = ships[showcaseIndex];
+                    camera.position.set(ship.model.position.x + 14, ship.model.position.y + 4, ship.model.position.z + 12);
+                    camera.lookAt(ship.model.position);
+                    document.getElementById('showcaseName').innerText = ship.name;
+                    document.getElementById('showcaseSpeed').innerText = ship.displaySpeed.toFixed(1);
+                } else if (curIdx >= 4) {
+                    isShowcasing = false;
+                    isCountingDown = true;
+                    countdownStartTime = now;
+                    document.getElementById('showcaseUI').style.display = 'none';
+                    document.getElementById('countdownUI').style.display = 'block';
+                }
+            } else if (isCountingDown) {
+                let count = 3 - Math.floor((now - countdownStartTime) / 1000);
+                document.getElementById('countdownUI').innerText = count > 0 ? count : "START!";
+                camera.position.set(-50, 5, 30);
+                camera.lookAt(0, 0, 0);
+                if (count < -1) {
+                    isCountingDown = false;
+                    gameStarted = true;
+                    startTime = now;
+                    document.getElementById('countdownUI').style.display = 'none';
+                }
+            } else if (gameStarted) {
                 elapsedTime = (now - startTime) / 1000;
                 document.getElementById('timeTxt').innerText = elapsedTime.toFixed(2);
+                let leaderX = -100, allFin = true;
+                ships.forEach(ship => {
+                    if (!ship.finished) {
+                        allFin = false;
+                        if (ship.currentSpeed < ship.speed) ship.currentSpeed += 0.01;
+                        ship.model.position.x += ship.currentSpeed;
+                        if (ship.currentSpeed > ship.speed * ship.vrRatio) {
+                            if (ship.model.position.y < ship.targetHeight) {
+                                ship.model.position.y += 0.18;
+                                ship.model.rotation.z = Math.min(ship.model.rotation.z + 0.01, 0.3);
+                            } else {
+                                ship.model.rotation.z = Math.max(ship.model.rotation.z - 0.01, 0);
+                            }
+                        }
+                        if (ship.model.position.x >= finishLineX) {
+                            ship.finished = true;
+                            ship.time = elapsedTime;
+                            document.getElementById(`status${ship.id}`).innerText = `GOAL (${elapsedTime.toFixed(2)}s)`;
+                            if (!winningShipId) {
+                                winningShipId = ship.id;
+                                isTapeCut = true;
+                                spawnConfetti();
+                            }
+                        }
+                    }
+                    if(ship.model.position.x > leaderX) leaderX = ship.model.position.x;
+                });
+                camera.position.x = leaderX - 35;
+                camera.position.y = 6;
+                camera.lookAt(leaderX + 25, 0, 0);
 
-                let allFin = ships.every(ship => ship.finished);
                 if (allFin) {
                     gameStarted = false;
                     let winnerShip = ships.reduce((min, ship) => ship.time < min.time ? ship : min, ships[0]);
                     showWinnerScreen(winnerShip);
                     document.getElementById('restartBtn').style.display = 'block';
                 }
-
-                leaderX = -1000;
-                ships.forEach(ship => {
-                    if (!ship.finished) {
-                        let force = (ship.vr * 15) / ship.weight;
-                        let acc = force * 0.0028 * (1.0 + (150 - ship.weight) * 0.002);
-                        ship.currentSpeed += acc;
-                        ship.model.position.x += ship.currentSpeed;
-
-                        if (ship.model.position.x >= 0) {
-                            let ratio = Math.min((ship.model.position.x) / finishLineX, 1.0);
-                            ship.model.position.y = groundY + ratio * (22 + (130 - ship.weight) * 0.1);
-                            ship.model.rotation.z = 0.18;
-                        }
-                        if (ship.model.position.x >= finishLineX) {
-                            ship.finished = true; ship.time = elapsedTime;
-                            document.getElementById(`status${ship.id}`).innerText = `GOAL (${elapsedTime.toFixed(2)}s)`;
-                            if (!winningShipId) { winningShipId = ship.id; isTapeCut = true; spawnConfetti(); }
-                        }
-                    }
-                    if(ship.model.position.x > leaderX) leaderX = ship.model.position.x;
-                });
-
-                if (isTapeCut) {
-                    tapeLeft.position.z += 0.8; tapeLeft.position.x += 0.2; tapeLeft.rotation.y += 0.05;
-                    tapeRight.position.z -= 0.8; tapeRight.position.x += 0.2; tapeRight.rotation.y -= 0.05;
-                }
-
-                camera.position.x = leaderX - 25; camera.position.y = groundY + 12;
-                let targetZ = ships.find(s => s.id === (winningShipId || 1)).model.position.z;
-                camera.position.z += (targetZ + 18 - camera.position.z) * 0.05;
-                camera.lookAt(leaderX + 15, groundY + 4, targetZ);
             }
 
-            // 💡 優勝機体をフワフワ浮かせながら綺麗に回転させる処理
-            if (winnerModel) {
-                winnerModel.rotation.y += 0.015; 
-                winnerModel.position.y = Math.sin(now * 0.002) * 0.15 - 0.6; // 文字の上にぴったり収まる高さ
-                if (winnerRenderer && winnerScene && winnerCamera) {
-                    winnerRenderer.render(winnerScene, winnerCamera);
+            if (isTapeCut) {
+                tapeLeft.position.x += 1.8;
+                tapeLeft.position.z += 1.8;
+                tapeLeft.rotation.y += 0.25;
+                tapeRight.position.x += 1.8;
+                tapeRight.position.z -= 1.8;
+                tapeRight.rotation.y -= 0.25;
+                if (tapeLeft.position.z > 60) {
+                    tapeLeft.visible = false;
+                    tapeRight.visible = false;
                 }
+            } else if (!gameStarted && !isShowcasing && !isCountingDown && !winningShipId) {
+                camera.position.set(-15, 3, 30);
+                camera.lookAt(-30, groundY, 0);
             }
-
             renderer.render(scene, camera);
         }
 
-        function resetGame() {
-            gameStarted = false; isShowcasing = false; isCountingDown = false; isTapeCut = false; winningShipId = null;
-            document.getElementById('winnerUI').style.display = 'none';
-            document.getElementById('restartBtn').style.display = 'none';
-            document.getElementById('ui').style.display = 'flex';
-            document.getElementById('startBtn').style.display = 'block';
-            document.getElementById('timeTxt').innerText = "0.00";
-            
-            tapeLeft.position.set(0, 3, laneWidth * 1.75); tapeLeft.rotation.set(0, Math.PI / 2, 0);
-            tapeRight.position.set(0, 3, -laneWidth * 1.75); tapeRight.rotation.set(0, Math.PI / 2, 0);
-
-            ships.forEach(ship => {
-                ship.finished = false; ship.speed = 0; ship.currentSpeed = 0; ship.displaySpeed = 0; ship.time = 0;
-                ship.model.position.set(-60, groundY, (ship.id - 2.5) * laneWidth);
-                ship.model.rotation.set(0, 0, 0);
-                document.getElementById(`status${ship.id}`).innerText = "READY";
-            });
-            
-            if (winnerRenderer) { winnerRenderer.dispose(); winnerModel = null; }
-            camera.position.set(-95, groundY + 8, 0); camera.lookAt(-40, groundY + 2, 0);
-        }
-
         function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
