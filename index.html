@@ -362,28 +362,26 @@
             if (winnerShip.model) {
     winnerModel = winnerShip.model.clone();
     
-    // 👇 364行目：位置を少し下に下げて、枠のセンターに合わせます
-    winnerModel.position.set(0, -1.0, 0); 
+    // 💡 1. 位置を少し下げて、文字の上の空きスペースのセンターに配置します
+    winnerModel.position.set(0, -0.5, 0); 
     
-    // 👇 365行目：大迫力にするために、数値を 15.0 に大幅アップします！
-    winnerModel.scale.set(15.0, 15.0, 15.0); 
+    // 💡 2. 大きすぎず小さすぎず、枠いっぱいに表示されるよう「4.5」倍に調整します
+    winnerModel.scale.set(4.5, 4.5, 4.5); 
     
-    winnerModel.rotation.y = Math.PI; // （ここは今のままでOK）
-
-                winnerModel.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material = new THREE.MeshStandardMaterial({ 
-                            color: child.material.color, 
-                            transparent: child.material.transparent, 
-                            opacity: child.material.opacity,
-                            roughness: 0.3,
-                            metalness: 0.1
-                        });
-                    }
-                });
-                winnerScene.add(winnerModel);
-            }
+    winnerModel.rotation.y = Math.PI; // 正面を向ける
+    winnerModel.traverse((child) => {
+        if (child.isMesh) {
+            child.material = new THREE.MeshStandardMaterial({
+                color: child.material.color,
+                transparent: child.material.transparent,
+                opacity: child.material.opacity,
+                roughness: 0.3,
+                metalness: 0.1
+            });
         }
+    });
+    winnerScene.add(winnerModel);
+}
 
         function animate() {
             requestAnimationFrame(animate);
@@ -395,8 +393,8 @@
             });
 
             if (winnerModel) {
-                winnerModel.rotation.y += 0.015;
-                winnerModel.position.y = Math.sin(now * 0.002) * 0.15 - 0.3;
+                // 👇 389行目をこのように書き換えてください（最後の数値を -0.6 に変更）
+winnerModel.position.y = Math.sin(now * 0.002) * 0.15 - 0.6;
                 if (winnerRenderer && winnerScene && winnerCamera) {
                     winnerRenderer.render(winnerScene, winnerCamera);
                 }
