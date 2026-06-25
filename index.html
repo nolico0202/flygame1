@@ -191,7 +191,7 @@ function createRunwayTexture() {
     const ctx = canvas.getContext('2d');
 
     // 1. ベースのアスファルト（ノイズ入りのダークグレー）
-    ctx.fillStyle = '#2a2b2d';
+    ctx.fillStyle = '#55575c'; // ← ここを明るいグレーに変更しました
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // アスファルトのざらざら感を出すための微細なノイズ
