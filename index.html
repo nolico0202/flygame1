@@ -120,7 +120,7 @@
             document.body.appendChild(renderer.domElement);
             const ambLight = new THREE.AmbientLight(0xffffff, 0.9); scene.add(ambLight);
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.7); dirLight.position.set(20, 50, 20); scene.add(dirLight);
-            const runway = new THREE.Mesh(new THREE.PlaneGeometry(350, 100), new THREE.MeshStandardMaterial({ color: 0x999999 }));
+            const runway = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0x999999 }));
 runway.rotation.x = -Math.PI / 2;
 runway.position.set(140, groundY - 0.2, 0); // 手前に合わせて配置
 scene.add(runway);
