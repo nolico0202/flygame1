@@ -120,14 +120,14 @@
             document.body.appendChild(renderer.domElement);
             const ambLight = new THREE.AmbientLight(0xffffff, 0.9); scene.add(ambLight);
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.7); dirLight.position.set(20, 50, 20); scene.add(dirLight);
-            const runway = new THREE.Mesh(new THREE.PlaneGeometry(160, 100), new THREE.MeshStandardMaterial({ color: 0x999999 }));
+            const runway = new THREE.Mesh(new THREE.PlaneGeometry(350, 100), new THREE.MeshStandardMaterial({ color: 0x999999 }));
 runway.rotation.x = -Math.PI / 2;
 runway.position.set(160, groundY - 0.2, 0); // 手前に合わせて配置
 scene.add(runway);
 
 const line = new THREE.Mesh(new THREE.PlaneGeometry(350, 1), new THREE.MeshBasicMaterial({ color: 0xffffff }));
 line.rotation.x = -Math.PI / 2;
-line.position.set(140, groundY - 0.15, 0); // 手前に合わせて配置
+line.position.set(160, groundY - 0.15, 0); // 手前に合わせて配置
 scene.add(line);
             const gate = new THREE.Group(); const poleGeo = new THREE.CylinderGeometry(0.6, 0.6, 35, 12); const poleMat = new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.8, roughness: 0.2 }); const pL = new THREE.Mesh(poleGeo, poleMat); pL.position.set(0, 10, laneWidth * 3.5); gate.add(pL); const pR = new THREE.Mesh(poleGeo, poleMat); pR.position.set(0, 10, -laneWidth * 3.5); gate.add(pR); const boardGeo = new THREE.BoxGeometry(1.5, 8, laneWidth * 7.5); const boardMat = new THREE.MeshStandardMaterial({ map: createFinishTexture() }); const board = new THREE.Mesh(boardGeo, boardMat); board.position.set(0, 25, 0); gate.add(board); gate.position.set(finishLineX, groundY, 0); scene.add(gate);
             const tapeGeo = new THREE.BoxGeometry(0.1, 1.2, laneWidth * 3.5); const tapeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); tapeLeft = new THREE.Mesh(tapeGeo, tapeMat); tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75); scene.add(tapeLeft); tapeRight = new THREE.Mesh(tapeGeo, tapeMat); tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75); scene.add(tapeRight);
