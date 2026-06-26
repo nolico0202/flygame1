@@ -122,7 +122,7 @@
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.7); dirLight.position.set(20, 50, 20); scene.add(dirLight);
             const runway = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0x999999 }));
 runway.rotation.x = -Math.PI / 2;
-runway.position.set(140, groundY - 0.2, 0); // 手前に合わせて配置
+runway.position.set(160, groundY - 0.2, 0); // 手前に合わせて配置
 scene.add(runway);
 
 const line = new THREE.Mesh(new THREE.PlaneGeometry(350, 1), new THREE.MeshBasicMaterial({ color: 0xffffff }));
