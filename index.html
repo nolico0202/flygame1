@@ -25,7 +25,7 @@
         @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
         /* 🏆 豪華な勝利画面のスタイル */
         #winnerUI {display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center; }
-        #winnerCloseUp {width: 50%; height: 50%; margin-bottom: 20px; position: relative; }
+        #winnerCloseUp {width: 60%; height: 60%; margin-bottom: 20px; position: relative; } /* コンテナも少し大きくしました */
         #winnerMessage {font-size: 60px; margin-bottom: 10px; animation: pulseMessage 2s ease-in-out infinite; font-weight: bold; color: #ffd700; text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8); }
         #winnerText {background: none; -webkit-background-clip: unset; -webkit-text-fill-color: unset; display: inline; }
         #praiseMessage {font-size: 30px; color: #00e5ff; margin-bottom: 30px; font-family: sans-serif; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8); }
@@ -183,7 +183,58 @@
 
         let winnerRenderer, winnerScene, winnerCamera, winnerModel;
         function showWinnerScreen(winnerShip) {
-            document.getElementById('ui').style.display = 'none'; document.getElementById('winnerText').innerHTML = `🎉 ${winnerShip.name} が優勝！ 🎉`; document.getElementById('winnerUI').style.display = 'flex'; document.getElementById('restartBtn_winner').onclick = () => { if (winnerRenderer) { winnerRenderer.dispose(); } resetGame(); };
+            document.getElementById('ui').style.display = 'none'; 
+            document.getElementById('winnerText').innerHTML = `🎉 ${winnerShip.name} が優勝！ 🎉`; 
+            document.getElementById('winnerUI').style.display = 'flex'; 
+            
+            // --- 🏆 ここから勝利機体表示の追加処理 ---
+            const container = document.getElementById('winnerCloseUp');
+            container.innerHTML = ''; // 以前のCanvasをクリア
+
+            // 勝利画面用のシーンとカメラの準備
+            winnerScene = new THREE.Scene();
+            winnerCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            winnerCamera.position.set(0, 0, 10);
+
+            // 背景を透過
+            winnerRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true }); 
+            winnerRenderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(winnerRenderer.domElement);
+
+            // ライトの追加
+            const ambLight = new THREE.AmbientLight(0xffffff, 1.0);
+            winnerScene.add(ambLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 5);
+            winnerScene.add(dirLight);
+
+            // 勝利した機体のモデルを複製してシーンに追加
+            winnerModel = winnerShip.model.clone();
+            
+            // 機体を特大サイズにするためのスケール調整（さらに大きくしました）
+            const box = new THREE.Box3().setFromObject(winnerModel);
+            const size = box.getSize(new THREE.Vector3()).length();
+            const scale = 24.0 / size; // 12.0 から 24.0 に変更
+            winnerModel.scale.set(scale, scale, scale);
+            
+            // モデルの向きをリセット（見栄え良く調整）
+            winnerModel.position.set(0, 0, 0);
+            if (winnerModel.geometry && winnerModel.geometry.type === 'ConeGeometry') {
+                winnerModel.rotation.set(0.5, 0, 0); 
+            } else {
+                winnerModel.rotation.set(0.2, -0.5, 0);
+            }
+            winnerScene.add(winnerModel);
+            // ----------------------------------------
+
+            document.getElementById('restartBtn_winner').onclick = () => { 
+                if (winnerRenderer) { 
+                    winnerRenderer.dispose(); 
+                    container.innerHTML = '';
+                    winnerModel = null;
+                } 
+                resetGame(); 
+            };
         }
 
         function animate() {
