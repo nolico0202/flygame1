@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>飛行機レース (トゥーン調 + 観客)</title>
+    <title>飛行機レース (トゥーン調)</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: 'Arial Black', sans-serif; }
         /* 🛠️ 操作パネルを横並びにするスタイル */
@@ -89,7 +89,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
-        let scene, camera, renderer, clouds = [], audienceMembers = [];
+        let scene, camera, renderer, clouds = [];
         let gameStarted = false, isShowcasing = false, isCountingDown = false;
         let showcaseIndex = -1, showcaseStartTime = 0, countdownStartTime = 0, startTime = 0;
         let elapsedTime = 0, winningShipId = null;
@@ -194,9 +194,6 @@
             // ☁️ 雲の生成
             for(let i=0; i<60; i++) createCloud(Math.random() * 1200 - 100); 
 
-            // 🕺 観客の生成
-            createAudience();
-
             auraGeometry = new THREE.BufferGeometry(); const positions = new Float32Array(PARTICLE_COUNT * 3); const initialData = []; for (let i = 0; i < PARTICLE_COUNT; i++) { positions[i*3] = 0; positions[i*3+1] = 0; positions[i*3+2] = 0; initialData.push({ vx: -Math.random() * 0.5 - 0.2, vy: (Math.random() - 0.5) * 0.3, vz: (Math.random() - 0.5) * 0.3, age: Math.random() * 30 }); } auraGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); auraGeometry.userData = { particles: initialData }; const auraMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, map: createParticleTexture() }); auraParticles = new THREE.Points(auraGeometry, auraMaterial); auraParticles.visible = false; scene.add(auraParticles);
 
             document.getElementById('upload1').addEventListener('change', (e) => handleFileSelect(e, 0)); document.getElementById('upload2').addEventListener('change', (e) => handleFileSelect(e, 1)); document.getElementById('upload3').addEventListener('change', (e) => handleFileSelect(e, 2)); document.getElementById('upload4').addEventListener('change', (e) => handleFileSelect(e, 3)); document.getElementById('startBtn').addEventListener('click', startShowcase); window.addEventListener('resize', onWindowResize); animate();
@@ -226,84 +223,6 @@
             group.position.set(startX, 25 + Math.random() * 40, Math.random() * 200 - 100);
             scene.add(group);
             clouds.push(group);
-        }
-
-        // 🕺 応援する観客を作る関数（人数削減＆髪型追加）
-        function createAudience() {
-            const colors = [0xff4444, 0x44ff44, 0x4444ff, 0xffff44, 0xff44ff, 0x44ffff, 0xffaa44, 0xffffff];
-            const skinColors = [0xffddbb, 0xffccaa, 0xeebbaa];
-            // 💇‍♂️ 髪色のバリエーションを追加
-            const hairColors = [0x111111, 0x4a3000, 0xcc8822, 0x882222, 0x777777, 0x223388, 0x882266, 0xffaacc];
-            
-            // 💡 人数を100人から30人に減らしました
-            for (let i = 0; i < 30; i++) {
-                const group = new THREE.Group();
-                
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                const randomSkin = skinColors[Math.floor(Math.random() * skinColors.length)];
-                const randomHair = hairColors[Math.floor(Math.random() * hairColors.length)];
-                
-                const clothesMat = new THREE.MeshToonMaterial({ color: randomColor, gradientMap: toonGradient });
-                const skinMat = new THREE.MeshToonMaterial({ color: randomSkin, gradientMap: toonGradient });
-                const hairMat = new THREE.MeshToonMaterial({ color: randomHair, gradientMap: toonGradient });
-                
-                // 体（円柱）
-                const body = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.8, 8), clothesMat);
-                body.position.y = 0.9;
-                group.add(body);
-                
-                // 頭（球）
-                const head = new THREE.Mesh(new THREE.SphereGeometry(0.8, 12, 12), skinMat);
-                head.position.y = 2.4;
-                group.add(head);
-
-                // 💇‍♀️ 髪型の生成（ランダムで3種類から選択）
-                const hairType = Math.floor(Math.random() * 3);
-                let hair;
-                if (hairType === 0) {
-                    // タイプ0: お椀型 / アフロ風（頭より一回り大きい球の上半分）
-                    hair = new THREE.Mesh(new THREE.SphereGeometry(0.85, 12, 12, 0, Math.PI * 2, 0, Math.PI * 0.6), hairMat);
-                    hair.position.y = 2.42;
-                } else if (hairType === 1) {
-                    // タイプ1: ツンツンヘアー（円錐）
-                    hair = new THREE.Mesh(new THREE.ConeGeometry(0.8, 0.9, 8), hairMat);
-                    hair.position.y = 3.15;
-                } else {
-                    // タイプ2: 角刈り / おかっぱ風（円柱）
-                    hair = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.85, 0.6, 8), hairMat);
-                    hair.position.y = 3.0;
-                }
-                group.add(hair);
-                
-                // 右手・左手（球）
-                const hand1 = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 8), skinMat);
-                hand1.position.set(1.0, 1.5, 0);
-                group.add(hand1);
-                
-                const hand2 = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 8), skinMat);
-                hand2.position.set(-1.0, 1.5, 0);
-                group.add(hand2);
-
-                // 配置場所（左右のコース外側、スタート地点付近にランダムに散らす）
-                const side = Math.random() > 0.5 ? 1 : -1;
-                const xPos = -10 + Math.random() * 60; // スタートライン（x=30）の前後
-                const zPos = side * (laneWidth * 3 + 3 + Math.random() * 15); // コースの横
-                
-                group.position.set(xPos, groundY, zPos);
-                
-                // アニメーション用の個別パラメータを保存
-                group.userData = {
-                    baseY: groundY,
-                    jumpOffset: Math.random() * Math.PI * 2,
-                    jumpSpeed: 10 + Math.random() * 8,
-                    armRot: Math.random() * Math.PI * 2,
-                    armSpeed: 12 + Math.random() * 5
-                };
-                
-                scene.add(group);
-                // アニメーションループで動かすために配列に保存
-                audienceMembers.push({ group, hand1, hand2 });
-            }
         }
 
         function handleFileSelect(event, index) {
@@ -401,19 +320,6 @@
             
             clouds.forEach(c => { c.position.x -= flowSpeed; if(c.position.x < -200) c.position.x = 1200; }); 
             
-            // 🕺 観客を応援させる（ジャンプ＆手を振る）
-            audienceMembers.forEach(member => {
-                const { group, hand1, hand2 } = member;
-                const data = group.userData;
-                
-                // ジャンプ（サイン波の絶対値でポンポン跳ねる）
-                group.position.y = data.baseY + Math.abs(Math.sin(now * 0.001 * data.jumpSpeed + data.jumpOffset)) * 1.5;
-                
-                // 手を振る
-                hand1.position.y = 1.5 + Math.sin(now * 0.001 * data.armSpeed + data.armRot) * 0.8;
-                hand2.position.y = 1.5 + Math.cos(now * 0.001 * data.armSpeed + data.armRot) * 0.8;
-            });
-
             if (winnerModel) { winnerModel.rotation.y += 0.015; winnerModel.position.y = Math.sin(now * 0.002) * 0.3; if (winnerRenderer && winnerScene && winnerCamera) { winnerRenderer.render(winnerScene, winnerCamera); } } 
             
             if (isShowcasing) {
