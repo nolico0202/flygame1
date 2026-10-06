@@ -6,7 +6,7 @@
     <title>飛行機レース (トゥーン調)</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: 'Arial Black', sans-serif; }
-        /* 🛠️ 操作パネルを横並びにするスタイル */
+        /* 🛠️️ 操作パネルを横並びにするスタイル */
         #ui {position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; max-width: 960px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .ship-config {background: rgba(255,255,255,0.05); padding: 10px; border-radius: 4px; width: 210px; border-bottom: none; }
         .ship-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #00ffcc; border-left: 4px solid #00ffcc; padding-left: 8px; display: flex; align-items: center; }
@@ -52,7 +52,7 @@
             <div class="input-group"><label>揚抗比 (L/D):</label><input type="number" id="ld_2" value="15.0" step="0.1"></div>
         </div>
         <div class="ship-config">
-            <div class="ship-title">✈️ <input type="text" id="name3" value="チーム あお" class="name-input"></div>
+            <div class="ship-title">✈️️ <input type="text" id="name3" value="チーム あお" class="name-input"></div>
             <input type="file" id="upload3" accept=".glb,.gltf" style="width:100%; font-size:10px;"><br>
             <div class="input-group" style="display: none;"><label>離陸決定速度 (V1):</label><input type="number" id="v1_3" value="120"></div>
             <div class="input-group" style="display: none;"><label>機首上げ速度 (VR):</label><input type="number" id="vr_3" value="120"></div>
@@ -86,6 +86,9 @@
         <span id="infoName4">YELLOW</span>: <span id="status4">READY</span><br>
     </div>
 
+    <!-- 🎵 追加: カウントダウン用の音声要素 -->
+    <audio id="countSound" src="sound1.mp3" preload="auto"></audio>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script>
@@ -117,18 +120,16 @@
 
         const finishLineX = 1000, groundY = -8, laneWidth = 7;
 
-        // 🎨 トゥーンレンダリング用のグラデーションテクスチャを生成する関数
         function createToonGradient() {
             const canvas = document.createElement('canvas');
             canvas.width = 4; // 4段階の階調
             canvas.height = 1;
             const context = canvas.getContext('2d');
-            context.fillStyle = '#444'; context.fillRect(0, 0, 1, 1); // 影1
-            context.fillStyle = '#888'; context.fillRect(1, 0, 1, 1); // 影2
-            context.fillStyle = '#ccc'; context.fillRect(2, 0, 1, 1); // 中間
-            context.fillStyle = '#fff'; context.fillRect(3, 0, 1, 1); // ハイライト
+            context.fillStyle = '#444'; context.fillRect(0, 0, 1, 1); 
+            context.fillStyle = '#888'; context.fillRect(1, 0, 1, 1); 
+            context.fillStyle = '#ccc'; context.fillRect(2, 0, 1, 1); 
+            context.fillStyle = '#fff'; context.fillRect(3, 0, 1, 1); 
             const texture = new THREE.CanvasTexture(canvas);
-            // NearestFilterにすることで色が滑らかに混ざらず、アニメのパキッとした陰影になる
             texture.minFilter = THREE.NearestFilter;
             texture.magFilter = THREE.NearestFilter;
             return texture;
@@ -154,14 +155,12 @@
             
             toonGradient = createToonGradient();
 
-            // 💡 トゥーン調を際立たせるため、アンビエント（全体光）を少し弱め、ディレクショナル（平行光）を強めに設定
             const ambLight = new THREE.AmbientLight(0xffffff, 0.4); 
             scene.add(ambLight); 
             const dirLight = new THREE.DirectionalLight(0xffffff, 1.0); 
             dirLight.position.set(20, 50, 20); 
             scene.add(dirLight);
             
-            // 道路にもトゥーンマテリアルを適用
             const runway = new THREE.Mesh(
                 new THREE.PlaneGeometry(200, 100), 
                 new THREE.MeshToonMaterial({ color: 0x999999, gradientMap: toonGradient })
@@ -176,12 +175,10 @@
             
             const gate = new THREE.Group(); 
             const poleGeo = new THREE.CylinderGeometry(0.6, 0.6, 35, 12); 
-            // 柱にもトゥーンマテリアル
             const poleMat = new THREE.MeshToonMaterial({ color: 0xdddddd, gradientMap: toonGradient }); 
             const pL = new THREE.Mesh(poleGeo, poleMat); pL.position.set(0, 10, laneWidth * 3.5); gate.add(pL); 
             const pR = new THREE.Mesh(poleGeo, poleMat); pR.position.set(0, 10, -laneWidth * 3.5); gate.add(pR); 
             
-            // 看板はテクスチャが見えやすいようにBasicMaterial
             const boardGeo = new THREE.BoxGeometry(1.5, 8, laneWidth * 7.5); 
             const boardMat = new THREE.MeshBasicMaterial({ map: createFinishTexture() }); 
             const board = new THREE.Mesh(boardGeo, boardMat); board.position.set(0, 25, 0); gate.add(board); 
@@ -191,7 +188,6 @@
             tapeLeft = new THREE.Mesh(tapeGeo, tapeMat); tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75); scene.add(tapeLeft); 
             tapeRight = new THREE.Mesh(tapeGeo, tapeMat); tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75); scene.add(tapeRight); 
             
-            // ☁️ 雲の生成
             for(let i=0; i<60; i++) createCloud(Math.random() * 1200 - 100); 
 
             auraGeometry = new THREE.BufferGeometry(); const positions = new Float32Array(PARTICLE_COUNT * 3); const initialData = []; for (let i = 0; i < PARTICLE_COUNT; i++) { positions[i*3] = 0; positions[i*3+1] = 0; positions[i*3+2] = 0; initialData.push({ vx: -Math.random() * 0.5 - 0.2, vy: (Math.random() - 0.5) * 0.3, vz: (Math.random() - 0.5) * 0.3, age: Math.random() * 30 }); } auraGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); auraGeometry.userData = { particles: initialData }; const auraMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, map: createParticleTexture() }); auraParticles = new THREE.Points(auraGeometry, auraMaterial); auraParticles.visible = false; scene.add(auraParticles);
@@ -199,22 +195,18 @@
             document.getElementById('upload1').addEventListener('change', (e) => handleFileSelect(e, 0)); document.getElementById('upload2').addEventListener('change', (e) => handleFileSelect(e, 1)); document.getElementById('upload3').addEventListener('change', (e) => handleFileSelect(e, 2)); document.getElementById('upload4').addEventListener('change', (e) => handleFileSelect(e, 3)); document.getElementById('startBtn').addEventListener('click', startShowcase); window.addEventListener('resize', onWindowResize); animate();
         }
 
-        // ☁️ トゥーンレンダリングのモクモクした雲
         function createCloud(startX = 250) {
             const group = new THREE.Group();
             
-            // 雲の材質にもトゥーンマテリアルを適用
             const mat = new THREE.MeshToonMaterial({ 
                 color: 0xffffff, 
                 gradientMap: toonGradient
             });
 
-            // 複数の球体を重ねて雲を作る
             const partCount = 6 + Math.floor(Math.random() * 5);
             
             for(let i = 0; i < partCount; i++) {
                 const radius = 3 + Math.random() * 4;
-                // 分割数を増やして丸みを出しつつ、トゥーンの陰影でアニメ風に見せる
                 const part = new THREE.Mesh(new THREE.SphereGeometry(radius, 16, 16), mat);
                 part.position.set((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 15);
                 group.add(part);
@@ -239,9 +231,8 @@
                 ship.displaySpeed = Math.sqrt((thrust * currentLdRatio) / liftCoefficient) * 3.6;
 
                 if (!ship.model) { 
-                    // 🚀 デフォルトの機体もトゥーンレンダリングに変更
                     ship.model = new THREE.Mesh(
-                        new THREE.ConeGeometry(2.5, 7, 12), // 陰影が綺麗に出るように少し分割数をアップ
+                        new THREE.ConeGeometry(2.5, 7, 12), 
                         new THREE.MeshToonMaterial({ color: ship.color, gradientMap: toonGradient })
                     ); 
                     ship.model.rotation.z = -Math.PI/2; 
@@ -268,33 +259,45 @@
             tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75); tapeLeft.rotation.y = 0; tapeLeft.visible = true; tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75); tapeRight.rotation.y = 0; tapeRight.visible = true; camera.position.set(-10, 2, 25); camera.lookAt(-30, groundY, 0); if(auraParticles) auraParticles.visible = false;
         }
 
-        let winnerRenderer, winnerScene, winnerCamera, winnerModel;
+        // 🛠️ WebGLコンテキストリークを防ぐため、変数を外出しして再利用
+        let winnerRenderer = null, winnerScene = null, winnerCamera = null, winnerModel = null;
+
         function showWinnerScreen(winnerShip) {
             document.getElementById('ui').style.display = 'none'; 
             document.getElementById('winnerText').innerHTML = `🎉 ${winnerShip.name} が優勝！ 🎉`; 
             document.getElementById('winnerUI').style.display = 'flex'; 
             
             const container = document.getElementById('winnerCloseUp');
-            container.innerHTML = ''; 
+            
+            // 初回のみレンダラーとシーンを作成
+            if (!winnerRenderer) {
+                winnerScene = new THREE.Scene();
+                const width = container.clientWidth || 600;
+                const height = container.clientHeight || 400;
+                
+                winnerCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+                winnerCamera.position.set(0, 0, 10);
 
-            winnerScene = new THREE.Scene();
-            winnerCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-            winnerCamera.position.set(0, 0, 10);
+                winnerRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true }); 
+                winnerRenderer.setSize(width, height);
+                container.appendChild(winnerRenderer.domElement);
 
-            winnerRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true }); 
-            winnerRenderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(winnerRenderer.domElement);
-
-            const ambLight = new THREE.AmbientLight(0xffffff, 0.5);
-            winnerScene.add(ambLight);
-            const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
-            dirLight.position.set(5, 10, 5);
-            winnerScene.add(dirLight);
+                const ambLight = new THREE.AmbientLight(0xffffff, 0.5);
+                winnerScene.add(ambLight);
+                const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+                dirLight.position.set(5, 10, 5);
+                winnerScene.add(dirLight);
+            } else {
+                // 既存のモデルがあれば削除してクリーンナップ
+                if (winnerModel) {
+                    winnerScene.remove(winnerModel);
+                }
+            }
 
             winnerModel = winnerShip.model.clone();
             const box = new THREE.Box3().setFromObject(winnerModel);
             const size = box.getSize(new THREE.Vector3()).length();
-            const scale = 24.0 / size; 
+            const scale = 24.0 / (size === 0 ? 1 : size); 
             winnerModel.scale.set(scale, scale, scale);
             
             winnerModel.position.set(0, 0, 0);
@@ -306,11 +309,6 @@
             winnerScene.add(winnerModel);
 
             document.getElementById('restartBtn_winner').onclick = () => { 
-                if (winnerRenderer) { 
-                    winnerRenderer.dispose(); 
-                    container.innerHTML = '';
-                    winnerModel = null;
-                } 
                 resetGame(); 
             };
         }
@@ -320,7 +318,11 @@
             
             clouds.forEach(c => { c.position.x -= flowSpeed; if(c.position.x < -200) c.position.x = 1200; }); 
             
-            if (winnerModel) { winnerModel.rotation.y += 0.015; winnerModel.position.y = Math.sin(now * 0.002) * 0.3; if (winnerRenderer && winnerScene && winnerCamera) { winnerRenderer.render(winnerScene, winnerCamera); } } 
+            if (winnerModel && winnerRenderer && winnerScene && winnerCamera) { 
+                winnerModel.rotation.y += 0.015; 
+                winnerModel.position.y = Math.sin(now * 0.002) * 0.3; 
+                winnerRenderer.render(winnerScene, winnerCamera); 
+            } 
             
             if (isShowcasing) {
                 let curIdx = Math.floor((now - showcaseStartTime) / 2500); 
@@ -328,6 +330,13 @@
                     showcaseIndex = curIdx; let ship = ships[showcaseIndex]; camera.position.set(ship.model.position.x + 14, ship.model.position.y + 4, ship.model.position.z + 12); camera.lookAt(ship.model.position); document.getElementById('showcaseName').innerText = ship.name; document.getElementById('showcaseSpeed').innerText = ship.displaySpeed.toFixed(1) + ' km/h'; 
                 } else if (curIdx >= 4) { 
                     isShowcasing = false; isCountingDown = true; countdownStartTime = now; document.getElementById('showcaseUI').style.display = 'none'; document.getElementById('countdownUI').style.display = 'block'; 
+                    
+                    /* 🎵 追加: カウントダウン音声の再生 */
+                    let audio = document.getElementById('countSound');
+                    if(audio){ 
+                        audio.currentTime = 0; 
+                        audio.play().catch(e => console.warn("音声再生エラー:", e)); 
+                    }
                 } 
             } else if (isCountingDown) {
                 let count = 3 - Math.floor((now - countdownStartTime) / 1000); document.getElementById('countdownUI').innerText = count > 0 ? count : "START!"; camera.position.set(-50, 5, 30); camera.lookAt(0, 0, 0); 
