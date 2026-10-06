@@ -222,15 +222,27 @@
         }
 
         function startShowcase() {
-            /* 🎵 修正: 「フライト開始」ボタンを押した瞬間に直接音楽を再生する */
+           /* 🎵 強化版: 音楽の再生とエラーチェック */
             let audio = document.getElementById('countSound');
             if(audio) {
-                audio.muted = false; // ミュート解除
-                audio.volume = 1;    // 音量MAX
+                audio.load(); // 確実に音声ファイルを読み込み直す
+                audio.muted = false; 
+                audio.volume = 1;    
                 audio.currentTime = 0; 
-                audio.play().catch(e => console.warn("音声再生エラー:", e)); 
+                
+                let playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log("再生スタート！");
+                    }).catch(error => {
+                        console.warn("音声再生エラー:", error);
+                        // 何が原因で鳴らないかを画面にポップアップ表示します
+                        alert("音が再生できませんでした。ファイル名が「countdown.mp3」か、同じフォルダにあるか確認してください。\nエラー内容: " + error.message);
+                    });
+                }
             }
 
+            //
             isShowcasing = true; showcaseIndex = -1; showcaseStartTime = performance.now(); document.getElementById('ui').style.setProperty('display', 'none', 'important'); document.getElementById('startBtn').style.setProperty('display', 'none', 'important'); document.getElementById('showcaseUI').style.setProperty('display', 'block', 'important'); 
             ships.forEach((ship, i) => {
                 ship.name = document.getElementById(`name${i+1}`).value || `SHIP ${i+1}`; 
