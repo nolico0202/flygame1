@@ -222,22 +222,17 @@
         }
 
         function startShowcase() {
-           /* 🎵 強化版: 音楽の再生とエラーチェック */
+            /* 🎵 音楽の再生処理 (本番用) */
             let audio = document.getElementById('countSound');
             if(audio) {
-                audio.load(); // 確実に音声ファイルを読み込み直す
                 audio.muted = false; 
                 audio.volume = 1;    
                 audio.currentTime = 0; 
                 
                 let playPromise = audio.play();
                 if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log("再生スタート！");
-                    }).catch(error => {
-                        console.warn("音声再生エラー:", error);
-                        // 何が原因で鳴らないかを画面にポップアップ表示します
-                        alert("音が再生できませんでした。ファイル名が「countdown.mp3」か、同じフォルダにあるか確認してください。\nエラー内容: " + error.message);
+                    playPromise.catch(error => {
+                        console.warn("音声再生エラー (ファイルが見つからないかブロックされました):", error);
                     });
                 }
             }
@@ -357,7 +352,6 @@
                     showcaseIndex = curIdx; let ship = ships[showcaseIndex]; camera.position.set(ship.model.position.x + 14, ship.model.position.y + 4, ship.model.position.z + 12); camera.lookAt(ship.model.position); document.getElementById('showcaseName').innerText = ship.name; document.getElementById('showcaseSpeed').innerText = ship.displaySpeed.toFixed(1) + ' km/h'; 
                 } else if (curIdx >= 4) { 
                     isShowcasing = false; isCountingDown = true; countdownStartTime = now; document.getElementById('showcaseUI').style.display = 'none'; document.getElementById('countdownUI').style.display = 'block'; 
-                    // ※ここにあった音声再生処理を startShowcase() に移動しました
                 } 
             } else if (isCountingDown) {
                 let count = 3 - Math.floor((now - countdownStartTime) / 1000); document.getElementById('countdownUI').innerText = count > 0 ? count : "START!"; camera.position.set(-50, 5, 30); camera.lookAt(0, 0, 0); 
@@ -441,8 +435,6 @@
                     gameStarted = false; 
                     let winnerShip = ships.reduce((min, ship) => ship.time < min.time ? ship : min, ships[0]); 
                     showWinnerScreen(winnerShip); 
-                    
-                    // ※ここにあった音声停止処理(audio.pause)を削除し、ゴール後も流れ続けるようにしました
                 } 
             } 
             
