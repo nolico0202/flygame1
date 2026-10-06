@@ -86,7 +86,7 @@
         <span id="infoName4">YELLOW</span>: <span id="status4">READY</span><br>
     </div>
 
-    <!-- 🎵 追加: カウントダウン＆ループ再生用の音声要素 -->
+    <!-- 🎵 カウントダウン＆ループ再生用の音声要素 -->
     <audio id="countSound" src="countdown.mp3" preload="auto" loop></audio>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -222,15 +222,13 @@
         }
 
         function startShowcase() {
-            /* 🎵 追加: ブラウザの音声ブロックを解除するためのダミー再生 */
+            /* 🎵 修正: 「フライト開始」ボタンを押した瞬間に直接音楽を再生する */
             let audio = document.getElementById('countSound');
             if(audio) {
-                audio.volume = 0; // 一瞬無音にする
-                audio.play().then(() => {
-                    audio.pause();
-                    audio.currentTime = 0;
-                    audio.volume = 1; // 音量を元に戻す
-                }).catch(e => console.warn("音声ロック解除スキップ:", e));
+                audio.muted = false; // ミュート解除
+                audio.volume = 1;    // 音量MAX
+                audio.currentTime = 0; 
+                audio.play().catch(e => console.warn("音声再生エラー:", e)); 
             }
 
             isShowcasing = true; showcaseIndex = -1; showcaseStartTime = performance.now(); document.getElementById('ui').style.setProperty('display', 'none', 'important'); document.getElementById('startBtn').style.setProperty('display', 'none', 'important'); document.getElementById('showcaseUI').style.setProperty('display', 'block', 'important'); 
@@ -269,7 +267,7 @@
             }); 
             tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75); tapeLeft.rotation.y = 0; tapeLeft.visible = true; tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75); tapeRight.rotation.y = 0; tapeRight.visible = true; camera.position.set(-10, 2, 25); camera.lookAt(-30, groundY, 0); if(auraParticles) auraParticles.visible = false;
             
-            /* 🎵 追加: リトライ時に音声を停止・リセット */
+            /* 🎵 リトライ時に音声を停止・リセット */
             let audio = document.getElementById('countSound');
             if(audio) {
                 audio.pause();
@@ -348,13 +346,7 @@
                     showcaseIndex = curIdx; let ship = ships[showcaseIndex]; camera.position.set(ship.model.position.x + 14, ship.model.position.y + 4, ship.model.position.z + 12); camera.lookAt(ship.model.position); document.getElementById('showcaseName').innerText = ship.name; document.getElementById('showcaseSpeed').innerText = ship.displaySpeed.toFixed(1) + ' km/h'; 
                 } else if (curIdx >= 4) { 
                     isShowcasing = false; isCountingDown = true; countdownStartTime = now; document.getElementById('showcaseUI').style.display = 'none'; document.getElementById('countdownUI').style.display = 'block'; 
-                    
-                    /* 🎵 追加: カウントダウン音声の再生 */
-                    let audio = document.getElementById('countSound');
-                    if(audio){ 
-                        audio.currentTime = 0; 
-                        audio.play().catch(e => console.warn("音声再生エラー:", e)); 
-                    }
+                    // ※ここにあった音声再生処理を startShowcase() に移動しました
                 } 
             } else if (isCountingDown) {
                 let count = 3 - Math.floor((now - countdownStartTime) / 1000); document.getElementById('countdownUI').innerText = count > 0 ? count : "START!"; camera.position.set(-50, 5, 30); camera.lookAt(0, 0, 0); 
@@ -439,9 +431,7 @@
                     let winnerShip = ships.reduce((min, ship) => ship.time < min.time ? ship : min, ships[0]); 
                     showWinnerScreen(winnerShip); 
                     
-                    /* 🎵 追加: レース終了時（全員ゴール時）に音声を停止 */
-                    let audio = document.getElementById('countSound');
-                    if(audio) audio.pause();
+                    // ※ここにあった音声停止処理(audio.pause)を削除し、ゴール後も流れ続けるようにしました
                 } 
             } 
             
