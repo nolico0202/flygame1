@@ -218,8 +218,98 @@
         }
 
         function handleFileSelect(event, index) {
-            const reader = new FileReader(); reader.onload = (e) => { new THREE.GLTFLoader().parse(e.target.result, '', (gltf) => { if (ships[index].model) scene.remove(ships[index].model); ships[index].model = gltf.scene; const box = new THREE.Box3().setFromObject(gltf.scene); const scale = 6.0 / box.getSize(new THREE.Vector3()).length(); gltf.scene.scale.set(scale, scale, scale); gltf.scene.rotation.y = -Math.PI / 2; gltf.scene.position.set(-30, groundY, (index - 1) * laneWidth); scene.add(gltf.scene); }); }; reader.readAsArrayBuffer(event.target.files[0]);
-        }
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+
+        new THREE.GLTFLoader().parse(
+            e.target.result,
+            '',
+            (gltf) => {
+
+                if (ships[index].model) {
+                    scene.remove(ships[index].model);
+                }
+
+                // ===== トゥーン化 =====
+                gltf.scene.traverse((child) => {
+
+                    if (child.isMesh) {
+
+                        const originalMap =
+                            child.material ? child.material.map : null;
+
+                        const originalColor =
+                            child.material &&
+                            child.material.color
+                                ? child.material.color.clone()
+                                : new THREE.Color(0xffffff);
+
+                        child.material = new THREE.MeshToonMaterial({
+                            color: originalColor,
+                            map: originalMap,
+                            gradientMap: toonGradient
+                        });
+
+                        child.material.flatShading = true;
+                        child.material.needsUpdate = true;
+
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+
+                        // ===== 黒縁追加 =====
+                        const outline = new THREE.Mesh(
+                            child.geometry,
+                            new THREE.MeshBasicMaterial({
+                                color: 0x000000,
+                                side: THREE.BackSide
+                            })
+                        );
+
+                        outline.scale.set(
+                            1.03,
+                            1.03,
+                            1.03
+                        );
+
+                        child.add(outline);
+                    }
+                });
+
+                ships[index].model = gltf.scene;
+
+                const box =
+                    new THREE.Box3().setFromObject(gltf.scene);
+
+                const scale =
+                    6.0 /
+                    box.getSize(
+                        new THREE.Vector3()
+                    ).length();
+
+                gltf.scene.scale.set(
+                    scale,
+                    scale,
+                    scale
+                );
+
+                gltf.scene.rotation.y = -Math.PI / 2;
+
+                gltf.scene.position.set(
+                    -30,
+                    groundY,
+                    (index - 1) * laneWidth
+                );
+
+                scene.add(gltf.scene);
+            }
+        );
+    };
+
+    reader.readAsArrayBuffer(
+        event.target.files[0]
+    );
+}
 
         function startShowcase() {
             /* 🎵 音楽の再生処理 (本番用) */
