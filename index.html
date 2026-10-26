@@ -106,19 +106,24 @@
 
         // --- ⚙️ 物理演算用の設定 ---
         const gravity = 9.8;
-        const thrust = 10000 * gravity;
+        const thrust = 30000 * gravity;
         const liftCoefficient = 600.0;
-        const timeScale = 12.0;
-        const dt = 0.016 * timeScale;
+        const timeScale = 4.0;
+        const maxFrameSec = 0.05; // タブ復帰時などの長いフレームで機体が飛びすぎないように
+        const maxClimbG = 0.3;    // 上昇・降下に使う力の上限 (重力の何倍か)
+        let lastFrameTime = 0;
 
+        // baseRotZ: 機首を前に向けるための元の傾き。機首上げはここからの差で付ける
         let ships = [
-            { id: 1, name: "チーム あか", model: null, vx: 0, vy: 0, displaySpeed: 0, finished: false, color: 0xff3333 },
-            { id: 2, name: "チーム みどり", model: null, vx: 0, vy: 0, displaySpeed: 0, finished: false, color: 0x33ff33 },
-            { id: 3, name: "チーム あお", model: null, vx: 0, vy: 0, displaySpeed: 0, finished: false, color: 0x3333ff },
-            { id: 4, name: "チーム きいろ", model: null, vx: 0, vy: 0, displaySpeed: 0, finished: false, color: 0xffff33 }
+            { id: 1, name: "チーム あか", model: null, vx: 0, vy: 0, airborne: false, baseRotZ: 0, displaySpeed: 0, finished: false, color: 0xff3333 },
+            { id: 2, name: "チーム みどり", model: null, vx: 0, vy: 0, airborne: false, baseRotZ: 0, displaySpeed: 0, finished: false, color: 0x33ff33 },
+            { id: 3, name: "チーム あお", model: null, vx: 0, vy: 0, airborne: false, baseRotZ: 0, displaySpeed: 0, finished: false, color: 0x3333ff },
+            { id: 4, name: "チーム きいろ", model: null, vx: 0, vy: 0, airborne: false, baseRotZ: 0, displaySpeed: 0, finished: false, color: 0xffff33 }
         ];
 
         const finishLineX = 1000, groundY = -8, laneWidth = 7;
+        const cruiseY = 0; // テープと同じ高さで水平飛行する
+        let pendingLoads = 0;
 
         function createToonGradient() {
             const canvas = document.createElement('canvas');
@@ -234,8 +239,34 @@
             });
         }
 
+        function setLoading(delta) {
+            pendingLoads += delta;
+            const btn = document.getElementById('startBtn');
+            btn.disabled = pendingLoads > 0;
+            btn.innerText = pendingLoads > 0 ? '読み込み中…' : 'フライト開始 🏁';
+        }
+
+        function laneZ(index) { return (index - 1.5) * laneWidth; }
+
         function handleFileSelect(event, index) {
-            const reader = new FileReader(); reader.onload = (e) => { new THREE.GLTFLoader().parse(e.target.result, '', (gltf) => { if (ships[index].model) scene.remove(ships[index].model); ships[index].model = gltf.scene; brightenGltf(gltf.scene); const box = new THREE.Box3().setFromObject(gltf.scene); const scale = 6.0 / box.getSize(new THREE.Vector3()).length(); gltf.scene.scale.set(scale, scale, scale); gltf.scene.rotation.y = -Math.PI / 2; gltf.scene.position.set(-30, groundY, (index - 1) * laneWidth); scene.add(gltf.scene); }, (err) => console.error('GLB読み込みエラー:', err)); }; reader.readAsArrayBuffer(event.target.files[0]);
+            const file = event.target.files[0];
+            if (!file) return; // ファイル選択をキャンセルしたとき
+            setLoading(1);
+            const reader = new FileReader();
+            reader.onerror = () => { console.error('ファイル読み込みエラー:', reader.error); setLoading(-1); };
+            reader.onload = (e) => {
+                new THREE.GLTFLoader().parse(e.target.result, '', (gltf) => {
+                    if (ships[index].model) scene.remove(ships[index].model);
+                    ships[index].model = gltf.scene; ships[index].baseRotZ = 0;
+                    brightenGltf(gltf.scene);
+                    const box = new THREE.Box3().setFromObject(gltf.scene); const scale = 6.0 / box.getSize(new THREE.Vector3()).length(); gltf.scene.scale.set(scale, scale, scale);
+                    // ZYX順にすると rotation.z がワールドのZ軸回り (=機首の上げ下げ) になる
+                    gltf.scene.rotation.order = 'ZYX'; gltf.scene.rotation.y = -Math.PI / 2;
+                    gltf.scene.position.set(-30, groundY, laneZ(index)); scene.add(gltf.scene);
+                    setLoading(-1);
+                }, (err) => { console.error('GLB読み込みエラー:', err); setLoading(-1); });
+            };
+            reader.readAsArrayBuffer(file);
         }
 
         function startShowcase() {
@@ -267,8 +298,9 @@
                         new THREE.ConeGeometry(2.5, 7, 12), 
                         new THREE.MeshToonMaterial({ color: ship.color, gradientMap: toonGradient })
                     ); 
-                    ship.model.rotation.z = -Math.PI/2; 
-                    ship.model.position.set(-30, groundY, (i - 1) * laneWidth); 
+                    ship.baseRotZ = -Math.PI/2;
+                    ship.model.rotation.z = ship.baseRotZ;
+                    ship.model.position.set(-30, groundY, laneZ(i));
                     scene.add(ship.model); 
                 } 
             });
@@ -281,11 +313,11 @@
         function resetGame() {
             gameStarted = false; isShowcasing = false; isCountingDown = false; winningShipId = null; isTapeCut = false; document.getElementById('ui').style.display = 'flex'; document.getElementById('startBtn').style.display = 'block'; document.getElementById('winnerUI').style.display = 'none'; document.getElementById('showcaseUI').style.display = 'none'; document.getElementById('countdownUI').style.display = 'none'; document.getElementById('confetti-container').innerHTML = ''; document.getElementById('timeTxt').innerText = '0.00'; 
             ships.forEach((ship, i) => {
-                ship.vx = 0; ship.vy = 0; ship.finished = false; 
-                if (ship.model) { 
-                    ship.model.position.set(-30, groundY, (i - 1) * laneWidth); 
-                    ship.model.rotation.z = ship.model.geometry && ship.model.geometry.type === 'ConeGeometry' ? -Math.PI/2 : 0;
-                } 
+                ship.vx = 0; ship.vy = 0; ship.airborne = false; ship.finished = false;
+                if (ship.model) {
+                    ship.model.position.set(-30, groundY, laneZ(i));
+                    ship.model.rotation.z = ship.baseRotZ;
+                }
                 document.getElementById(`status${ship.id}`).innerText = "READY"; document.getElementById(`status${ship.id}`).className = ""; 
             }); 
             tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75); tapeLeft.rotation.y = 0; tapeLeft.visible = true; tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75); tapeRight.rotation.y = 0; tapeRight.visible = true; camera.position.set(-10, 2, 25); camera.lookAt(-30, groundY, 0); if(auraParticles) auraParticles.visible = false;
@@ -301,9 +333,11 @@
         // 🛠 WebGLコンテキストリークを防ぐため、変数を外出しして再利用
         let winnerRenderer = null, winnerScene = null, winnerCamera = null, winnerModel = null;
 
-        function showWinnerScreen(winnerShip) {
-            document.getElementById('ui').style.display = 'none'; 
-            document.getElementById('winnerText').innerHTML = `🎉 ${winnerShip.name} が優勝！ 🎉`; 
+        function showWinnerScreen(winners) {
+            const winnerShip = winners[0];
+            document.getElementById('ui').style.display = 'none';
+            const names = winners.map(s => s.name).join(' と ');
+            document.getElementById('winnerText').textContent = winners.length > 1 ? `🎉 ${names} が同着優勝！ 🎉` : `🎉 ${names} が優勝！ 🎉`;
             document.getElementById('winnerUI').style.display = 'flex'; 
             
             const container = document.getElementById('winnerCloseUp');
@@ -336,8 +370,8 @@
             winnerModel = winnerShip.model.clone();
             const box = new THREE.Box3().setFromObject(winnerModel);
             const size = box.getSize(new THREE.Vector3()).length();
-            const scale = 24.0 / (size === 0 ? 1 : size); 
-            winnerModel.scale.set(scale, scale, scale);
+            // 今の大きさに掛け合わせる (set だとGLBの元の縮尺が消える)。カメラ距離10で画面に収まる大きさにする
+            winnerModel.scale.multiplyScalar(7.0 / (size === 0 ? 1 : size));
             
             winnerModel.position.set(0, 0, 0);
             if (winnerModel.geometry && winnerModel.geometry.type === 'ConeGeometry') {
@@ -353,7 +387,10 @@
         }
 
         function animate() {
-            requestAnimationFrame(animate); let now = performance.now(); let flowSpeed = gameStarted ? 0.9 : 0.1; 
+            requestAnimationFrame(animate); let now = performance.now(); let flowSpeed = gameStarted ? 0.9 : 0.1;
+            // 画面のリフレッシュレートに関係なく同じ速さで進むよう、前フレームからの実時間で物理を進める
+            let frameSec = lastFrameTime ? Math.min((now - lastFrameTime) / 1000, maxFrameSec) : 0; lastFrameTime = now;
+            let dt = frameSec * timeScale;
             
             clouds.forEach(c => { c.position.x -= flowSpeed; if(c.position.x < -200) c.position.x = 1200; }); 
             
@@ -372,13 +409,15 @@
                 } 
             } else if (isCountingDown) {
                 let count = 3 - Math.floor((now - countdownStartTime) / 1000); document.getElementById('countdownUI').innerText = count > 0 ? count : "START!"; camera.position.set(-50, 5, 30); camera.lookAt(0, 0, 0); 
-                if (count < -1) { 
-                    isCountingDown = false; gameStarted = true; startTime = now; document.getElementById('countdownUI').style.display = 'none'; 
-                } 
+                if (count <= 0) {
+                    // 「START!」と同時に発進する。表示はスタート後1秒で消す
+                    isCountingDown = false; gameStarted = true; startTime = now;
+                }
             } else if (gameStarted) {
-                elapsedTime = (now - startTime) / 1000; document.getElementById('timeTxt').innerText = elapsedTime.toFixed(2); 
-                
-                let leaderX = -100, allFin = true, leaderShip = null;
+                elapsedTime = (now - startTime) / 1000; document.getElementById('timeTxt').innerText = elapsedTime.toFixed(2);
+                if (elapsedTime > 1) document.getElementById('countdownUI').style.display = 'none';
+
+                let leaderX = -100, allFin = true, leaderShip = null, finishedThisFrame = [];
 
                 ships.forEach(ship => {
                     if (!ship.finished) {
@@ -389,19 +428,23 @@
                         let ldRatio = parseFloat(document.getElementById('ld_' + ship.id).value); 
                         let mass = weightTon * 1000; 
                         
-                        let speedSquared = ship.vx * ship.vx + ship.vy * ship.vy;
-                        let lift = liftCoefficient * speedSquared; 
-                        let drag = lift / ldRatio;                 
-                        let weightForce = mass * gravity;          
-                        
-                        let forceX = thrust - drag;
+                        let speed = Math.hypot(ship.vx, ship.vy) || 1;
+                        let lift = liftCoefficient * ship.vx * ship.vx;          // 揚力は前進速度から
+                        let drag = liftCoefficient * speed * speed / ldRatio;    // 抗力は進行方向の逆向き
+                        let weightForce = mass * gravity;
+
+                        let forceX = thrust - drag * (ship.vx / speed);
                         ship.vx += (forceX / mass) * dt;
-                        
+
                         let speedKmH = ship.vx * 3.6;
-                        
-                        if (speedKmH >= vrSpeed && lift > weightForce) {
-                            let forceY = lift - weightForce;
-                            ship.vy += (forceY / mass) * dt;
+
+                        if (!ship.airborne && speedKmH >= vrSpeed && lift > weightForce) ship.airborne = true;
+                        if (ship.airborne) {
+                            // 余った揚力で上昇し、巡航高度に近づいたら水平飛行に移る (速度が落ちれば降下する)
+                            let climbAccel = Math.min(lift - weightForce, weightForce * maxClimbG) / mass - drag * (ship.vy / speed) / mass;
+                            let targetVy = Math.max(0, (cruiseY - ship.model.position.y) * 0.5);
+                            let accelY = dt > 0 ? Math.max(-gravity * maxClimbG, Math.min(climbAccel, (targetVy - ship.vy) / dt)) : 0;
+                            ship.vy += accelY * dt;
                         }
 
                         ship.model.position.x += ship.vx * dt;
@@ -412,15 +455,18 @@
                             ship.vy = 0;
                         }
 
-                        if (ship.vy > 0) {
-                            ship.model.rotation.z = Math.min(ship.model.rotation.z + 0.02, 0.3);
-                        } else if (ship.model.position.y > groundY + 2) {
-                            ship.model.rotation.z = Math.max(ship.model.rotation.z - 0.01, 0);
+                        // 機首の上げ下げは元の傾き (baseRotZ) からの差で付ける
+                        if (ship.vy > 0.5) {
+                            ship.model.rotation.z = Math.min(ship.model.rotation.z + 0.02, ship.baseRotZ + 0.3);
+                        } else {
+                            ship.model.rotation.z = Math.max(ship.model.rotation.z - 0.01, ship.baseRotZ);
                         }
-                        
-                        if (ship.model.position.x >= finishLineX) { 
-                            ship.finished = true; ship.time = elapsedTime; document.getElementById(`status${ship.id}`).innerText = `GOAL (${elapsedTime.toFixed(2)}s)`; 
-                            if (!winningShipId) { winningShipId = ship.id; isTapeCut = true; spawnConfetti(); } 
+
+                        if (ship.model.position.x >= finishLineX) {
+                            // フレームの途中でラインを越えた時刻まで戻して、同じフレームでのゴールにも順位を付ける
+                            let overshootSec = ship.vx > 0 ? (ship.model.position.x - finishLineX) / ship.vx / timeScale : 0;
+                            ship.finished = true; ship.time = Math.max(0, elapsedTime - overshootSec); document.getElementById(`status${ship.id}`).innerText = `GOAL (${ship.time.toFixed(2)}s)`;
+                            finishedThisFrame.push(ship);
                         } else {
                             document.getElementById(`status${ship.id}`).innerText = `Speed: ${Math.floor(speedKmH)} km/h`;
                         }
@@ -430,6 +476,10 @@
                         leaderX = ship.model.position.x; leaderShip = ship;
                     }
                 });
+
+                if (!winningShipId && finishedThisFrame.length > 0) {
+                    winningShipId = finishedThisFrame.reduce((a, b) => b.time < a.time ? b : a).id; isTapeCut = true; spawnConfetti();
+                }
 
                 if (leaderShip && !winningShipId) {
                     auraParticles.visible = true; auraParticles.material.color.setHex(leaderShip.color);
@@ -450,8 +500,8 @@
                 
                 if (allFin) { 
                     gameStarted = false; 
-                    let winnerShip = ships.reduce((min, ship) => ship.time < min.time ? ship : min, ships[0]); 
-                    showWinnerScreen(winnerShip); 
+                    let bestTime = Math.min(...ships.map(s => s.time));
+                    showWinnerScreen(ships.filter(s => s.time === bestTime));
                 } 
             } 
             
