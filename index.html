@@ -215,10 +215,12 @@
                             scene.remove(ships[index].model);
                         }
 
-                        // ===== トゥーン化 =====
+                        // 🌟 トゥーン化と発光（明るさ）の適用
                         gltf.scene.traverse((child) => {
                             if (child.isMesh) {
-                                // 🌟 マテリアルを安全に適用する関数
+                                // 🌟 骨格アニメーションモデルかどうかを判定
+                                const isSkinned = child.isSkinnedMesh;
+
                                 const applyToonMaterial = (mat) => {
                                     const origColor = mat.color ? mat.color.clone() : new THREE.Color(0xffffff);
                                     const origMap = mat.map ? mat.map : null;
@@ -227,12 +229,13 @@
                                         color: origColor,
                                         map: origMap,
                                         gradientMap: toonGradient,
-                                        emissive: origColor, // モデルの色を発光させる
-                                        emissiveIntensity: 0.6 // 発光の強さ（ここで明るさを調整）
+                                        emissive: origColor,         // モデル自体を発光させて明るく
+                                        emissiveMap: origMap,
+                                        emissiveIntensity: 0.3,      // 発光の強さ（高すぎると白飛びします）
+                                        skinning: isSkinned          // 🌟 骨格モデルの場合は必須。これがないと潰れます
                                     });
                                 };
 
-                                // 🌟 複数マテリアルが含まれるモデルでもエラーが出ないように対応
                                 if (Array.isArray(child.material)) {
                                     child.material = child.material.map(mat => applyToonMaterial(mat));
                                 } else if (child.material) {
@@ -242,8 +245,9 @@
                                 child.castShadow = true;
                                 child.receiveShadow = true;
 
-                                // ===== 黒縁追加 =====
-                                if (child.geometry) {
+                                // 🌟 骨格モデル（SkinnedMesh）以外にのみ黒縁を追加
+                                // （SkinnedMeshに直接Meshを追加するとエラーで読み込まれなくなるため）
+                                if (!isSkinned && child.geometry) {
                                     const outline = new THREE.Mesh(
                                         child.geometry,
                                         new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide })
@@ -255,10 +259,12 @@
                         });
 
                         ships[index].model = gltf.scene;
+                        
                         const box = new THREE.Box3().setFromObject(gltf.scene);
                         const size = box.getSize(new THREE.Vector3()).length();
                         const scale = 6.0 / (size === 0 ? 1 : size); 
                         gltf.scene.scale.set(scale, scale, scale);
+                        
                         gltf.scene.rotation.y = -Math.PI / 2;
                         gltf.scene.position.set(-30, groundY, (index - 1) * laneWidth);
                         scene.add(gltf.scene);
