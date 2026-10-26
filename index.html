@@ -217,8 +217,25 @@
             clouds.push(group);
         }
 
+        // 🎨 GLBの質感をこのシーンに合わせて明るくする
+        function brightenGltf(root) {
+            root.traverse((obj) => {
+                if (!obj.isMesh) return;
+                const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+                mats.forEach((m) => {
+                    // シーン全体が色をそのまま出す設定なので、テクスチャも変換せずに使う
+                    if (m.map) { m.map.encoding = THREE.LinearEncoding; m.map.needsUpdate = true; }
+                    if (m.emissiveMap) { m.emissiveMap.encoding = THREE.LinearEncoding; m.emissiveMap.needsUpdate = true; }
+                    // 金属は周りを映す質感で、映すものがないこのシーンでは黒くなるので弱める
+                    if (m.metalness !== undefined) m.metalness = Math.min(m.metalness, 0.2);
+                    if (m.roughness !== undefined) m.roughness = Math.max(m.roughness, 0.5);
+                    m.needsUpdate = true;
+                });
+            });
+        }
+
         function handleFileSelect(event, index) {
-            const reader = new FileReader(); reader.onload = (e) => { new THREE.GLTFLoader().parse(e.target.result, '', (gltf) => { if (ships[index].model) scene.remove(ships[index].model); ships[index].model = gltf.scene; const box = new THREE.Box3().setFromObject(gltf.scene); const scale = 6.0 / box.getSize(new THREE.Vector3()).length(); gltf.scene.scale.set(scale, scale, scale); gltf.scene.rotation.y = -Math.PI / 2; gltf.scene.position.set(-30, groundY, (index - 1) * laneWidth); scene.add(gltf.scene); }); }; reader.readAsArrayBuffer(event.target.files[0]);
+            const reader = new FileReader(); reader.onload = (e) => { new THREE.GLTFLoader().parse(e.target.result, '', (gltf) => { if (ships[index].model) scene.remove(ships[index].model); ships[index].model = gltf.scene; brightenGltf(gltf.scene); const box = new THREE.Box3().setFromObject(gltf.scene); const scale = 6.0 / box.getSize(new THREE.Vector3()).length(); gltf.scene.scale.set(scale, scale, scale); gltf.scene.rotation.y = -Math.PI / 2; gltf.scene.position.set(-30, groundY, (index - 1) * laneWidth); scene.add(gltf.scene); }, (err) => console.error('GLB読み込みエラー:', err)); }; reader.readAsArrayBuffer(event.target.files[0]);
         }
 
         function startShowcase() {
