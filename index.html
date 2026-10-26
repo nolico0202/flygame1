@@ -139,7 +139,7 @@
 
         function init() {
             scene = new THREE.Scene(); 
-            scene.background = new THREE.Color(0x87CEEB); // 元の背景色
+            scene.background = new THREE.Color(0x87CEEB); 
             scene.fog = new THREE.Fog(0x87CEEB, 20, 250); 
             
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000); 
@@ -149,7 +149,7 @@
             
             toonGradient = createToonGradient();
 
-            const ambLight = new THREE.AmbientLight(0xffffff, 0.4); // 元のライト強度
+            const ambLight = new THREE.AmbientLight(0xffffff, 0.4); 
             scene.add(ambLight); 
             const dirLight = new THREE.DirectionalLight(0xffffff, 1.2); 
             dirLight.position.set(20, 50, 20); 
@@ -218,46 +218,54 @@
                         // ===== トゥーン化 =====
                         gltf.scene.traverse((child) => {
                             if (child.isMesh) {
-                                const originalMap = child.material ? child.material.map : null;
-                                let originalColor = new THREE.Color(0xffffff);
-                                
-                                if (child.material && child.material.color) {
-                                    originalColor = child.material.color.clone();
+                                // 🌟 マテリアルを安全に適用する関数
+                                const applyToonMaterial = (mat) => {
+                                    const origColor = mat.color ? mat.color.clone() : new THREE.Color(0xffffff);
+                                    const origMap = mat.map ? mat.map : null;
+
+                                    return new THREE.MeshToonMaterial({
+                                        color: origColor,
+                                        map: origMap,
+                                        gradientMap: toonGradient,
+                                        emissive: origColor, // モデルの色を発光させる
+                                        emissiveIntensity: 0.6 // 発光の強さ（ここで明るさを調整）
+                                    });
+                                };
+
+                                // 🌟 複数マテリアルが含まれるモデルでもエラーが出ないように対応
+                                if (Array.isArray(child.material)) {
+                                    child.material = child.material.map(mat => applyToonMaterial(mat));
+                                } else if (child.material) {
+                                    child.material = applyToonMaterial(child.material);
                                 }
 
-                                // ✨ 3Dモデルだけを明るくする修正ポイント ✨
-                                // 環境の光に頼らず、モデル自身を発光(Emissive)させることで明るく見せます
-                                child.material = new THREE.MeshToonMaterial({
-                                    color: originalColor,
-                                    map: originalMap,
-                                    gradientMap: toonGradient,
-                                    emissive: originalColor,        // モデルの色自体を発光させる
-                                    emissiveMap: originalMap,       // テクスチャがある場合はテクスチャも発光させる
-                                    emissiveIntensity: 0.4          // 発光の強さ（0.1～1.0の間でお好みで調整できます）
-                                });
-
-                                child.material.flatShading = true;
-                                child.material.needsUpdate = true;
                                 child.castShadow = true;
                                 child.receiveShadow = true;
 
                                 // ===== 黒縁追加 =====
-                                const outline = new THREE.Mesh(
-                                    child.geometry,
-                                    new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide })
-                                );
-                                outline.scale.set(1.03, 1.03, 1.03);
-                                child.add(outline);
+                                if (child.geometry) {
+                                    const outline = new THREE.Mesh(
+                                        child.geometry,
+                                        new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide })
+                                    );
+                                    outline.scale.set(1.03, 1.03, 1.03);
+                                    child.add(outline);
+                                }
                             }
                         });
 
                         ships[index].model = gltf.scene;
                         const box = new THREE.Box3().setFromObject(gltf.scene);
-                        const scale = 6.0 / box.getSize(new THREE.Vector3()).length();
+                        const size = box.getSize(new THREE.Vector3()).length();
+                        const scale = 6.0 / (size === 0 ? 1 : size); 
                         gltf.scene.scale.set(scale, scale, scale);
                         gltf.scene.rotation.y = -Math.PI / 2;
                         gltf.scene.position.set(-30, groundY, (index - 1) * laneWidth);
                         scene.add(gltf.scene);
+                    },
+                    (error) => {
+                        console.error('モデルの読み込みエラー:', error);
+                        alert('モデルの読み込みに失敗しました。');
                     }
                 );
             };
