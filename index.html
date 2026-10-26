@@ -6,6 +6,7 @@
     <title>飛行機レース (トゥーン調)</title>
     <style>
         body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: 'Arial Black', sans-serif; }
+        /* 🛠 操作パネルを横並びにするスタイル */
         #ui {position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(0,0,0,0.85); color: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; max-width: 960px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         .ship-config {background: rgba(255,255,255,0.05); padding: 10px; border-radius: 4px; width: 210px; border-bottom: none; }
         .ship-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #00ffcc; border-left: 4px solid #00ffcc; padding-left: 8px; display: flex; align-items: center; }
@@ -13,6 +14,7 @@
         .input-group { margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
         .input-group label { font-size: 10px; width: 130px; color: #ddd; }
         .input-group input[type="number"] { width: 50px; background: #222; color: #fff; border: 1px solid #555; border-radius: 3px; padding: 2px; font-size: 11px; text-align: right; }
+        /* ⏱️ タイム＆リザルト表示 */
         #info {position: absolute; bottom: 10px; left: 10px; color: white; font-size: 14px; text-shadow: 2px 2px 4px black; background: rgba(0,0,0,0.6); padding: 12px; border-radius: 8px; z-index: 200; min-width: 220px; border: 1px solid rgba(255,255,255,0.2); line-height: 1.6; }
         #showcaseUI { display: none; position: absolute; bottom: 100px; right: 50px; color: white; background: rgba(0,0,0,0.85); padding: 20px; border-radius: 15px; border-right: 12px solid #ffd700; z-index: 400; min-width: 280px; box-shadow: -5px 5px 20px rgba(0,0,0,0.5); }
         #showcaseName { font-size: 28px; margin: 0; color: #ffd700; }
@@ -21,6 +23,7 @@
         #confetti-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 250; overflow: hidden; }
         .confetti { position: absolute; width: 12px; height: 12px; border-radius: 2px; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(800px) rotate(720deg); opacity: 0; } }
+        /* 🏆 豪華な勝利画面のスタイル */
         #winnerUI {display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; color: white; text-align: center; }
         #winnerCloseUp {width: 60%; height: 60%; margin-bottom: 20px; position: relative; } 
         #winnerMessage {font-size: 60px; margin-bottom: 10px; animation: pulseMessage 2s ease-in-out infinite; font-weight: bold; color: #ffd700; text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8); }
@@ -83,6 +86,7 @@
         <span id="infoName4">YELLOW</span>: <span id="status4">READY</span><br>
     </div>
 
+    <!-- 🎵 カウントダウン＆ループ再生用の音声要素 -->
     <audio id="countSound" src="countdown.mp3" preload="auto" loop></audio>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -97,8 +101,10 @@
         let auraParticles, auraGeometry;
         const PARTICLE_COUNT = 60;
 
+        // 🎨 トゥーン用のグラデーションマップ
         let toonGradient;
 
+        // --- ⚙️ 物理演算用の設定 ---
         const gravity = 9.8;
         const thrust = 10000 * gravity;
         const liftCoefficient = 600.0;
@@ -116,7 +122,7 @@
 
         function createToonGradient() {
             const canvas = document.createElement('canvas');
-            canvas.width = 4;
+            canvas.width = 4; // 4段階の階調
             canvas.height = 1;
             const context = canvas.getContext('2d');
             context.fillStyle = '#444'; context.fillRect(0, 0, 1, 1); 
@@ -191,14 +197,21 @@
 
         function createCloud(startX = 250) {
             const group = new THREE.Group();
-            const mat = new THREE.MeshToonMaterial({ color: 0xffffff, gradientMap: toonGradient });
+            
+            const mat = new THREE.MeshToonMaterial({ 
+                color: 0xffffff, 
+                gradientMap: toonGradient
+            });
+
             const partCount = 6 + Math.floor(Math.random() * 5);
+            
             for(let i = 0; i < partCount; i++) {
                 const radius = 3 + Math.random() * 4;
                 const part = new THREE.Mesh(new THREE.SphereGeometry(radius, 16, 16), mat);
                 part.position.set((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 15);
                 group.add(part);
             }
+
             group.position.set(startX, 25 + Math.random() * 40, Math.random() * 200 - 100);
             scene.add(group);
             clouds.push(group);
@@ -206,87 +219,84 @@
 
         function handleFileSelect(event, index) {
             const reader = new FileReader();
+
             reader.onload = (e) => {
                 new THREE.GLTFLoader().parse(
                     e.target.result,
                     '',
                     (gltf) => {
+
                         if (ships[index].model) {
                             scene.remove(ships[index].model);
                         }
 
-                        // 🌟 トゥーン化と発光（明るさ）の適用
+                        // ===== トゥーン化 =====
                         gltf.scene.traverse((child) => {
                             if (child.isMesh) {
-                                // 🌟 骨格アニメーションモデルかどうかを判定
-                                const isSkinned = child.isSkinnedMesh;
+                                const originalMap = child.material ? child.material.map : null;
+                                const originalColor = child.material && child.material.color
+                                        ? child.material.color.clone()
+                                        : new THREE.Color(0xffffff);
 
-                                const applyToonMaterial = (mat) => {
-                                    const origColor = mat.color ? mat.color.clone() : new THREE.Color(0xffffff);
-                                    const origMap = mat.map ? mat.map : null;
+                                child.material = new THREE.MeshToonMaterial({
+                                    color: originalColor,
+                                    map: originalMap,
+                                    gradientMap: toonGradient,
+                                    emissive: new THREE.Color(0xffffff), // ✨ここを追加：モデル全体を白く発光させます
+                                    emissiveIntensity: 0.4               // ✨ここを追加：明るさの強さを調整します（0.0〜1.0）
+                                });
 
-                                    return new THREE.MeshToonMaterial({
-                                        color: origColor,
-                                        map: origMap,
-                                        gradientMap: toonGradient,
-                                        emissive: origColor,         // モデル自体を発光させて明るく
-                                        emissiveMap: origMap,
-                                        emissiveIntensity: 0.3,      // 発光の強さ（高すぎると白飛びします）
-                                        skinning: isSkinned          // 🌟 骨格モデルの場合は必須。これがないと潰れます
-                                    });
-                                };
-
-                                if (Array.isArray(child.material)) {
-                                    child.material = child.material.map(mat => applyToonMaterial(mat));
-                                } else if (child.material) {
-                                    child.material = applyToonMaterial(child.material);
-                                }
+                                child.material.flatShading = true;
+                                child.material.needsUpdate = true;
 
                                 child.castShadow = true;
                                 child.receiveShadow = true;
 
-                                // 🌟 骨格モデル（SkinnedMesh）以外にのみ黒縁を追加
-                                // （SkinnedMeshに直接Meshを追加するとエラーで読み込まれなくなるため）
-                                if (!isSkinned && child.geometry) {
-                                    const outline = new THREE.Mesh(
-                                        child.geometry,
-                                        new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide })
-                                    );
-                                    outline.scale.set(1.03, 1.03, 1.03);
-                                    child.add(outline);
-                                }
+                                // ===== 黒縁追加 =====
+                                const outline = new THREE.Mesh(
+                                    child.geometry,
+                                    new THREE.MeshBasicMaterial({
+                                        color: 0x000000,
+                                        side: THREE.BackSide
+                                    })
+                                );
+
+                                outline.scale.set(1.03, 1.03, 1.03);
+                                child.add(outline);
                             }
                         });
 
                         ships[index].model = gltf.scene;
-                        
+
                         const box = new THREE.Box3().setFromObject(gltf.scene);
                         const size = box.getSize(new THREE.Vector3()).length();
                         const scale = 6.0 / (size === 0 ? 1 : size); 
+
                         gltf.scene.scale.set(scale, scale, scale);
-                        
                         gltf.scene.rotation.y = -Math.PI / 2;
                         gltf.scene.position.set(-30, groundY, (index - 1) * laneWidth);
+
                         scene.add(gltf.scene);
-                    },
-                    (error) => {
-                        console.error('モデルの読み込みエラー:', error);
-                        alert('モデルの読み込みに失敗しました。');
                     }
                 );
             };
+
             reader.readAsArrayBuffer(event.target.files[0]);
         }
 
         function startShowcase() {
+            /* 🎵 音楽の再生処理 (本番用) */
             let audio = document.getElementById('countSound');
             if(audio) {
                 audio.muted = false; 
                 audio.volume = 1;    
                 audio.currentTime = 0; 
+                
                 let playPromise = audio.play();
                 if (playPromise !== undefined) {
-                    playPromise.catch(error => { console.warn("音声再生エラー", error); });
+                    playPromise.catch(error => {
+                        console.warn("音声再生エラー (ファイルが見つからないかブロックされました):", error);
+                    });
                 }
             }
 
@@ -326,6 +336,7 @@
             }); 
             tapeLeft.position.set(finishLineX, 0, laneWidth * 1.75); tapeLeft.rotation.y = 0; tapeLeft.visible = true; tapeRight.position.set(finishLineX, 0, -laneWidth * 1.75); tapeRight.rotation.y = 0; tapeRight.visible = true; camera.position.set(-10, 2, 25); camera.lookAt(-30, groundY, 0); if(auraParticles) auraParticles.visible = false;
             
+            /* 🎵 リトライ時に音声を停止・リセット */
             let audio = document.getElementById('countSound');
             if(audio) {
                 audio.pause();
@@ -333,6 +344,7 @@
             }
         }
 
+        // 🛠 WebGLコンテキストリークを防ぐため、変数を外出しして再利用
         let winnerRenderer = null, winnerScene = null, winnerCamera = null, winnerModel = null;
 
         function showWinnerScreen(winnerShip) {
@@ -342,6 +354,7 @@
             
             const container = document.getElementById('winnerCloseUp');
             
+            // 初回のみレンダラーとシーンを作成
             if (!winnerRenderer) {
                 winnerScene = new THREE.Scene();
                 const width = container.clientWidth || 600;
@@ -360,6 +373,7 @@
                 dirLight.position.set(5, 10, 5);
                 winnerScene.add(dirLight);
             } else {
+                // 既存のモデルがあれば削除してクリーンナップ
                 if (winnerModel) {
                     winnerScene.remove(winnerModel);
                 }
